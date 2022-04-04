@@ -26,6 +26,7 @@ Vue.use(VueRouter);
 export const router = new VueRouter({
     mode: "history",
     linkActiveClass: "active",
+    base: "/beta",
     routes:
         [
             {
@@ -173,5 +174,4 @@ export const router = new VueRouter({
                 name: "legal"
             }
         ],
-    base: "/",
 });
