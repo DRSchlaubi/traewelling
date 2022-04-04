@@ -45,21 +45,21 @@ class PrivateProfileVisibilityTest extends ApiTestCase
         $bob = $this->actingAs($this->users->bob->user, 'api')
                     ->json('GET', route('api.v0.user', ['username' => $this->users->bob->user->username]));
         $bob->assertSuccessful();
-        $bob = json_decode($bob->getContent(), true);
+        $bob = json_decode($bob->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertNotEquals(null, $bob['statuses'], 'Bob cannot see his own statuses!');
 
         // Can Alice see the profile of Bob? => no
         $alice = $this->actingAs($this->users->alice->user, 'api')
                       ->json('GET', route('api.v0.user', ['username' => $this->users->bob->user->username]));
         $alice->assertSuccessful();
-        $alice = json_decode($alice->getContent(), true);
+        $alice = json_decode($alice->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(null, $alice['statuses'], 'Alice can see the statuses of bob!');
 
         // Can Gertrud see the profile of bob? => yes
         $gertrud = $this->actingAs($this->users->gertrud->user, 'api')
                         ->json('GET', route('api.v0.user', ['username' => $this->users->bob->user->username]));
         $gertrud->assertSuccessful();
-        $gertrud = json_decode($gertrud->getContent(), true);
+        $gertrud = json_decode($gertrud->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertNotEquals(null, $gertrud['statuses'], 'Gertrud cannot see the statuses bob!');
     }
 
@@ -235,7 +235,6 @@ class PrivateProfileVisibilityTest extends ApiTestCase
      * Bob is a private profile, followed by Gertrud. Alice is a seperate user, following nobody.
      * Bob has one check in.
      *
-     * @return stdClass
      * @throws \App\Exceptions\AlreadyFollowingException
      */
     public function createAliceBobAndGertrud(): stdClass {

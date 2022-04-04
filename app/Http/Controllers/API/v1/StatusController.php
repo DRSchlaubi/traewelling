@@ -47,9 +47,7 @@ class StatusController extends ResponseController
     /**
      * Show single status
      *
-     * @param int $id
      *
-     * @return StatusResource|Response
      */
     public function show(int $id): StatusResource|Response {
         $status = StatusBackend::getStatus($id);
@@ -61,11 +59,6 @@ class StatusController extends ResponseController
         return new StatusResource($status);
     }
 
-    /**
-     * @param int $id
-     *
-     * @return JsonResponse
-     */
     public function destroy(int $id): JsonResponse {
         try {
             StatusBackend::DeleteStatus(Auth::user(), $id);
@@ -79,10 +72,7 @@ class StatusController extends ResponseController
     }
 
     /**
-     * @param Request $request
-     * @param int     $statusId
      *
-     * @return JsonResponse
      * @throws ValidationException
      */
     public function update(Request $request, int $statusId): JsonResponse {
@@ -114,9 +104,7 @@ class StatusController extends ResponseController
     }
 
     /**
-     * @param string $parameters
      *
-     * @return JsonResponse
      * @todo extract this to backend
      * @todo does this conform to the private checkin-shit?
      */
@@ -125,38 +113,27 @@ class StatusController extends ResponseController
         $geoJsonFeatures = Status::whereIn('id', $ids)
                                  ->with('trainCheckin.HafasTrip.polyline')
                                  ->get()
-                                 ->filter(function(Status $status) {
-                                     return \request()?->user()->can('view', $status);
-                                 })
-                                 ->map(function($status) {
-                                     return [
-                                         'type'       => 'Feature',
-                                         'geometry'   => [
-                                             'type'        => 'LineString',
-                                             'coordinates' => GeoController::getMapLinesForCheckin($status->trainCheckin)
-                                         ],
-                                         'properties' => [
-                                             'statusId' => $status->id
-                                         ]
-                                     ];
-                                 });
+                                 ->filter(fn(Status $status) => \request()?->user()->can('view', $status))
+                                 ->map(fn($status) => [
+                                     'type'       => 'Feature',
+                                     'geometry'   => [
+                                         'type'        => 'LineString',
+                                         'coordinates' => GeoController::getMapLinesForCheckin($status->trainCheckin)
+                                     ],
+                                     'properties' => [
+                                         'statusId' => $status->id
+                                     ]
+                                 ]);
         $geoJson         = [
             'type'     => 'FeatureCollection',
             'features' => $geoJsonFeatures
         ];
-        return $ids ? $this->sendv1Response($geoJson) : $this->sendv1Error("");
+        return $ids !== [] ? $this->sendv1Response($geoJson) : $this->sendv1Error("");
     }
 
-    /**
-     * @param string $parameters
-     *
-     * @return JsonResponse
-     */
     public function getStopovers(string $parameters): JsonResponse {
         $tripIds = explode(',', $parameters, 50);
-        $trips   = HafasTrip::whereIn('id', $tripIds)->get()->mapWithKeys(function($trip) {
-            return [$trip->id => StopoverResource::collection($trip->stopoversNEW)];
-        });
+        $trips   = HafasTrip::whereIn('id', $tripIds)->get()->mapWithKeys(fn($trip) => [$trip->id => StopoverResource::collection($trip->stopoversNEW)]);
         return $this->sendv1Response($trips);
     }
 }

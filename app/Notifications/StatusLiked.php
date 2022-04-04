@@ -20,15 +20,12 @@ class StatusLiked extends Notification
 {
     use Queueable;
 
-    public ?Like $like;
-
     /**
      * Create a new notification instance
      *
      * @return void
      */
-    public function __construct(Like $like = null) {
-        $this->like = $like;
+    public function __construct(public ?\App\Models\Like $like = null) {
     }
 
     /** @deprecated will be handled in frontend */
@@ -48,7 +45,7 @@ class StatusLiked extends Notification
             "link"            => route('statuses.get', ['id' => $detail->status->id]),
             'notice'          => trans_choice(
                 'notifications.statusLiked.notice',
-                preg_match('/\s/', $hafas->linename),
+                preg_match('/\s/', (string) $hafas->linename),
                 [
                     'line'        => $hafas->linename,
                     'createdDate' => Carbon::parse($hafas->departure)->isoFormat(__('date-format'))
@@ -62,9 +59,6 @@ class StatusLiked extends Notification
     }
 
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return stdClass
      * @throws ShouldDeleteNotificationException
      */
     public static function detail(DatabaseNotification $notification): stdClass {
@@ -109,8 +103,6 @@ class StatusLiked extends Notification
      * Get the notification's delivery channels.
      *
      * @param mixed
-     *
-     * @return array
      */
     public function via(): array {
         return ['database'];
@@ -120,8 +112,6 @@ class StatusLiked extends Notification
      * Get the array representation of the notification.
      *
      * @param mixed
-     *
-     * @return array
      */
     public function toArray(): array {
         return [

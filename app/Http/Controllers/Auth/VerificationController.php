@@ -45,9 +45,7 @@ class VerificationController extends Controller
      * Resend the email verification notification.
      * Overrides function in parent because of the response
      *
-     * @param Request $request
      *
-     * @return JsonResponse|RedirectResponse
      */
     public function resend(Request $request): JsonResponse|RedirectResponse {
         if ($request->user()->hasVerifiedEmail()) {

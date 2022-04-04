@@ -8,10 +8,7 @@ use Throwable;
 
 class CheckInCollisionException extends Exception
 {
-    private $trainCheckIn;
-
-    public function __construct(TrainCheckin $trainCheckIn, $message = "", $code = 0, Throwable $previous = null) {
-        $this->trainCheckIn = $trainCheckIn;
+    public function __construct(private readonly TrainCheckin $trainCheckIn, $message = "", $code = 0, Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

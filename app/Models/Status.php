@@ -60,7 +60,7 @@ class Status extends Model
     public function getSocialTextAttribute(): string {
         $postText = trans_choice(
             key:     'controller.transport.social-post',
-            number:  preg_match('/\s/', $this->trainCheckin->HafasTrip->linename),
+            number:  preg_match('/\s/', (string) $this->trainCheckin->HafasTrip->linename),
             replace: [
                          'lineName'    => $this->trainCheckin->HafasTrip->linename,
                          'destination' => $this->trainCheckin->Destination->name
@@ -69,7 +69,7 @@ class Status extends Model
         if ($this->event !== null) {
             $postText = trans_choice(
                 key:     'controller.transport.social-post-with-event',
-                number:  preg_match('/\s/', $this->trainCheckin->HafasTrip->linename),
+                number:  preg_match('/\s/', (string) $this->trainCheckin->HafasTrip->linename),
                 replace: [
                              'lineName'    => $this->trainCheckin->HafasTrip->linename,
                              'destination' => $this->trainCheckin->Destination->name,
@@ -79,7 +79,7 @@ class Status extends Model
         }
 
 
-        if (isset($this->body)) {
+        if (property_exists($this, 'body') && $this->body !== null) {
             if ($this->event !== null) {
                 $eventIntercept = __('controller.transport.social-post-for', [
                     'hashtag' => $this->event->hashtag
@@ -94,7 +94,7 @@ class Status extends Model
 
             $appendixLength = strlen($appendix) + 30;
             $postText       = substr($this->body, 0, 280 - $appendixLength);
-            if (strlen($postText) !== strlen($this->body)) {
+            if (strlen($postText) !== strlen((string) $this->body)) {
                 $postText .= '...';
             }
             $postText .= $appendix;

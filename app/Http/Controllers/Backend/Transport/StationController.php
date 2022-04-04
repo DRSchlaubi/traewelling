@@ -47,10 +47,7 @@ abstract class StationController extends Controller
     /**
      * Get the latest TrainStations the user is arrived.
      *
-     * @param User $user
-     * @param int  $maxCount
      *
-     * @return Collection
      */
     public static function getLatestArrivals(User $user, int $maxCount = 5): Collection {
         return TrainStation::join('train_checkins', 'train_checkins.destination', '=', 'train_stations.ibnr')

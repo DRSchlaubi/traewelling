@@ -36,7 +36,7 @@ class ApiCheckinTest extends ApiTestCase
     public function stationboardTest(): void {
         $requestDate = Carbon::parse($this->plus_one_day_then_8pm);
         $stationname = "Frankfurt(Main)Hbf";
-        $ibnr        = 8000105;
+        $ibnr        = 8_000_105;
         $response    = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
                             ->json('GET',
                                    route('api.v0.checkin.train.stationboard'),
@@ -46,16 +46,14 @@ class ApiCheckinTest extends ApiTestCase
                                    ]);
         $this->checkHafasException($response);
         $response->assertOk();
-        $jsonResponse = json_decode($response->getContent(), true);
+        $jsonResponse = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $station      = $jsonResponse['station'];
         $departures   = $jsonResponse['departures'];
 
         // Ensure its the same station
         $this->assertEquals($stationname, $station['name']);
         $this->assertEquals($ibnr, $station['ibnr']);
-        $this->assertTrue(array_reduce($departures, function($carry, $hafastrip) use ($requestDate) {
-            return $carry && $this->isCorrectHafasTrip((object) $hafastrip, $requestDate);
-        }, true));
+        $this->assertTrue(array_reduce($departures, fn($carry, $hafastrip) => $carry && $this->isCorrectHafasTrip((object) $hafastrip, $requestDate), true));
     }
 
 
@@ -70,8 +68,8 @@ class ApiCheckinTest extends ApiTestCase
                             ]);
 
         $this->checkHafasException($response);
-        $trainStationboard = json_decode($response->getContent(), true);
-        $countDepartures   = count($trainStationboard['departures']);
+        $trainStationboard = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $countDepartures   = is_countable($trainStationboard['departures']) ? count($trainStationboard['departures']) : 0;
         if ($countDepartures == 0) {
             $this->markTestSkipped("Unable to find matching trains. Is it night in $stationname?");
         }
@@ -80,7 +78,7 @@ class ApiCheckinTest extends ApiTestCase
         $i = 0;
         while ((isset($trainStationboard['departures'][$i]['cancelled'])
                 && $trainStationboard['departures'][$i]['cancelled'])
-               || count($trainStationboard['departures'][$i]['remarks']) != 0
+               || (is_countable($trainStationboard['departures'][$i]['remarks']) ? count($trainStationboard['departures'][$i]['remarks']) : 0) != 0
         ) {
             $i++;
             if ($i == $countDepartures) {
@@ -98,7 +96,7 @@ class ApiCheckinTest extends ApiTestCase
                              'start'    => $departure['stop']['location']['id']
                          ]);
 
-        $trip = json_decode($response->getContent(), true);
+        $trip = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
                          ->json('POST', route('api.v0.checkin.train.checkin'), [
@@ -143,7 +141,7 @@ class ApiCheckinTest extends ApiTestCase
                          ->json('GET', route('api.v0.checkin.train.home'));
         $response->assertOk();
         $response->assertJsonStructure(['id', 'ibnr', 'name', 'latitude', 'longitude']);
-        $station = json_decode($response->getContent(), true)['name'];
+        $station = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)['name'];
         $this->assertEquals($station, "Frankfurt(Main)Hbf");
     }
 }

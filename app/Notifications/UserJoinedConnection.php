@@ -16,15 +16,12 @@ class UserJoinedConnection extends Notification
 {
     use Queueable;
 
-    private Status $status;
-
     /**
      * Create a new notification instance
      *
      * @return void
      */
-    public function __construct(Status $status) {
-        $this->status = $status;
+    public function __construct(private readonly Status $status) {
     }
 
     /** @deprecated will be handled in frontend */
@@ -45,7 +42,7 @@ class UserJoinedConnection extends Notification
             "link"            => route('statuses.get', ['id' => $detail->status->id]),
             'notice'          => trans_choice(
                 'notifications.userJoinedConnection.notice',
-                preg_match('/\s/', $detail->status->trainCheckin->HafasTrip->linename), [
+                preg_match('/\s/', (string) $detail->status->trainCheckin->HafasTrip->linename), [
                     'username'    => $detail->status->user->username,
                     'linename'    => $detail->status->trainCheckin->HafasTrip->linename,
                     'origin'      => $detail->status->trainCheckin->Origin->name,
@@ -59,9 +56,6 @@ class UserJoinedConnection extends Notification
     }
 
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return stdClass
      * @throws ShouldDeleteNotificationException
      */
     public static function detail(DatabaseNotification $notification): stdClass {
@@ -98,8 +92,6 @@ class UserJoinedConnection extends Notification
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array
      */
     public function via(): array {
         return ['database'];
@@ -108,8 +100,6 @@ class UserJoinedConnection extends Notification
     /**
      * Get the array representation of the notification.
      * This array is saved as `data` in the database
-     *
-     * @return array
      */
     public function toArray(): array {
         return [

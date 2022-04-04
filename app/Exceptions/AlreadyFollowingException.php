@@ -7,20 +7,13 @@ use Exception;
 
 class AlreadyFollowingException extends Exception
 {
-    private User $user;
-    private User $initiator;
-
     /**
      * AlreadyFollowingException constructor.
      * $initiator is already following $user
      * OR
      * $initiator has already requested a follow to $user
-     * @param User $initiator
-     * @param User $user
      */
-    public function __construct(User $initiator, User $user) {
-        $this->initiator = $initiator;
-        $this->user      = $user;
+    public function __construct(private readonly User $initiator, private readonly User $user) {
         parent::__construct();
     }
 

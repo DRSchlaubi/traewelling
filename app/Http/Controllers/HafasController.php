@@ -33,7 +33,7 @@ abstract class HafasController extends Controller
         try {
             $client   = new Client(['base_uri' => config('trwl.db_rest'), 'timeout' => config('trwl.db_rest_timeout')]);
             $response = $client->get("/stations/$rilIdentifier");
-            $data     = json_decode($response->getBody()->getContents());
+            $data     = json_decode($response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
             return TrainStation::updateOrCreate([
                                                     'ibnr' => $data->id
                                                 ], [
@@ -61,7 +61,7 @@ abstract class HafasController extends Controller
                 ]
             ]);
 
-            $data     = json_decode($response->getBody()->getContents());
+            $data     = json_decode($response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
             $stations = collect();
             foreach ($data as $hafasStation) {
                 $stations->push(self::parseHafasStopObject($hafasStation));
@@ -94,7 +94,7 @@ abstract class HafasController extends Controller
                 ]
             ]);
 
-            $data     = json_decode($response->getBody()->getContents());
+            $data     = json_decode($response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
             $stations = collect();
             foreach ($data as $hafasStation) {
                 $station           = self::parseHafasStopObject($hafasStation);
@@ -109,12 +109,8 @@ abstract class HafasController extends Controller
     }
 
     /**
-     * @param TrainStation    $station
-     * @param Carbon          $when
-     * @param int             $duration
      * @param TravelType|null $type
      *
-     * @return Collection
      * @throws HafasException
      */
     public static function getDepartures(
@@ -146,7 +142,7 @@ abstract class HafasController extends Controller
                 'query' => $query,
             ]);
 
-            $data       = json_decode($response->getBody()->getContents());
+            $data       = json_decode($response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
             $departures = collect();
             foreach ($data as $departure) {
                 $departure->station = self::getTrainStation($departure->stop->id);
@@ -162,12 +158,9 @@ abstract class HafasController extends Controller
     /**
      * Get the TrainStation Model from Database
      *
-     * @param int         $ibnr
      * @param string|null $name
      * @param float|null  $latitude
      * @param float|null  $longitude
-     *
-     * @return TrainStation
      * @throws HafasException
      */
     public static function getTrainStation(int    $ibnr,
@@ -194,16 +187,14 @@ abstract class HafasController extends Controller
     /**
      * Fetch from HAFAS
      *
-     * @param int $ibnr
      *
-     * @return TrainStation
      * @throws HafasException
      */
     private static function fetchTrainStation(int $ibnr): TrainStation {
         try {
             $client   = new Client(['base_uri' => config('trwl.db_rest'), 'timeout' => config('trwl.db_rest_timeout')]);
             $response = $client->get("/stops/$ibnr");
-            $data     = json_decode($response->getBody()->getContents());
+            $data     = json_decode($response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
             return TrainStation::updateOrCreate([
                                                     'ibnr' => $data->id
                                                 ], [
@@ -217,10 +208,7 @@ abstract class HafasController extends Controller
     }
 
     /**
-     * @param string $tripID
-     * @param string $lineName
      *
-     * @return HafasTrip
      * @throws HafasException
      */
     public static function getHafasTrip(string $tripID, string $lineName): HafasTrip {
@@ -229,10 +217,7 @@ abstract class HafasController extends Controller
     }
 
     /**
-     * @param string $tripID
-     * @param string $lineName
      *
-     * @return HafasTrip
      * @throws HafasException
      */
     public static function fetchHafasTrip(string $tripID, string $lineName): HafasTrip {
@@ -255,7 +240,7 @@ abstract class HafasController extends Controller
         $destination = self::parseHafasStopObject($tripJson->destination);
         $operator    = null;
 
-        if (isset($tripJson->line->operator->id)) {
+        if (property_exists($tripJson->line->operator, 'id') && $tripJson->line->operator->id !== null) {
             $operator = HafasOperator::updateOrCreate([
                                                           'hafas_id' => $tripJson->line->operator->id,
                                                       ], [
@@ -271,23 +256,23 @@ abstract class HafasController extends Controller
             $tripJson->line->id = '';
         }
 
-        $polyline = TransportController::getPolylineHash(json_encode($tripJson->polyline));
+        $polyline = TransportController::getPolylineHash(json_encode($tripJson->polyline, JSON_THROW_ON_ERROR));
 
         $hafasTrip = HafasTrip::updateOrCreate([
                                                    'trip_id' => $tripID
                                                ], [
-                                                   'category'    => $tripJson->line->product,
-                                                   'number'      => $tripJson->line->id,
-                                                   'linename'    => $tripJson->line->name,
-                                                   'operator_id' => $operator?->id,
-                                                   'origin'      => $origin->ibnr,
-                                                   'destination' => $destination->ibnr,
-                                                   'stopovers'   => json_encode($tripJson->stopovers),
-                                                   'polyline_id' => $polyline->id,
-                                                   'departure'   => $tripJson->plannedDeparture,
-                                                   'arrival'     => $tripJson->plannedArrival,
-                                                   'delay'       => $tripJson->arrivalDelay ?? null
-                                               ]);
+            'category'    => $tripJson->line->product,
+            'number'      => $tripJson->line->id,
+            'linename'    => $tripJson->line->name,
+            'operator_id' => $operator?->id,
+            'origin'      => $origin->ibnr,
+            'destination' => $destination->ibnr,
+            'stopovers'   => json_encode($tripJson->stopovers, JSON_THROW_ON_ERROR),
+            'polyline_id' => $polyline->id,
+            'departure'   => $tripJson->plannedDeparture,
+            'arrival'     => $tripJson->plannedArrival,
+            'delay'       => $tripJson->arrivalDelay ?? null
+        ]);
 
         foreach ($tripJson->stopovers as $stopover) {
             $hafasStop = self::parseHafasStopObject($stopover->stop);
@@ -319,8 +304,8 @@ abstract class HafasController extends Controller
                     [
                         'trip_id'           => $tripID,
                         'train_station_id'  => $hafasStop->id,
-                        'arrival_planned'   => isset($stopover->plannedArrival) ? Carbon::parse($stopover->plannedArrival)->format('Y-m-d H:i:s') : null,
-                        'departure_planned' => isset($stopover->plannedDeparture) ? Carbon::parse($stopover->plannedDeparture)->format('Y-m-d H:i:s') : null,
+                        'arrival_planned'   => property_exists($stopover, 'plannedArrival') && $stopover->plannedArrival !== null ? Carbon::parse($stopover->plannedArrival)->format('Y-m-d H:i:s') : null,
+                        'departure_planned' => property_exists($stopover, 'plannedDeparture') && $stopover->plannedDeparture !== null ? Carbon::parse($stopover->plannedDeparture)->format('Y-m-d H:i:s') : null,
                     ],
                     $updatePayload
                 );

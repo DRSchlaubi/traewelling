@@ -13,8 +13,6 @@ class UserSettingsResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param Request $request
-     *
-     * @return UserBaseResource
      */
     public function toArray($request): UserBaseResource {
         return new UserBaseResource($this);

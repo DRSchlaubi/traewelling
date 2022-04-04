@@ -28,16 +28,17 @@ class CheckinTest extends TestCase
         parent::setUp();
     }
 
-    private $plus_one_day_then_8pm = "+1 day 8:00";
+    private string $plus_one_day_then_8pm = "+1 day 8:00";
 
     /**
      * Use the stationboard api and check if it works.
      * @test
      */
     public function stationboardTest(): void {
-        $requestDate = Carbon::parse($this->plus_one_day_then_8pm);
-        $stationName = "Frankfurt(Main)Hbf";
-        $ibnr        = 8000105; // This station has departures throughout the night.
+        $trainStationboard = [];
+        $requestDate       = Carbon::parse($this->plus_one_day_then_8pm);
+        $stationName       = "Frankfurt(Main)Hbf";
+        $ibnr              = 8_000_105; // This station has departures throughout the night.
         try {
             $trainStationboard = TransportController::getDepartures(
                 stationQuery: $stationName,
@@ -57,9 +58,7 @@ class CheckinTest extends TestCase
         // This is just a very long construct to ensure that each and every hafas trip is reported
         // correctly. I'm using this over a loop with single assertions so there is a consistent
         // amount of assertions, no matter what time how the trains are moving.
-        $this->assertTrue(array_reduce($departures->toArray(), function($carry, $hafastrip) use ($requestDate) {
-            return $carry && $this->isCorrectHafasTrip($hafastrip, $requestDate);
-        },                             true));
+        $this->assertTrue(array_reduce($departures->toArray(), fn($carry, $hafastrip) => $carry && $this->isCorrectHafasTrip($hafastrip, $requestDate), true));
     }
 
     /**
@@ -81,7 +80,7 @@ class CheckinTest extends TestCase
             ], */
             [
                 'name'      => 'FRA',
-                'station'   => 8070003,
+                'station'   => 8_070_003,
                 'latitude'  => 50.052926,
                 'longitude' => 8.569776
             ]
@@ -155,6 +154,8 @@ class CheckinTest extends TestCase
      * @test
      */
     public function testCheckin(): void {
+        $trainStationboard = [];
+        $trip              = [];
         // First: Get a train that's fine for our stuff
         $timestamp   = Carbon::parse($this->plus_one_day_then_8pm);
         $stationName = "Frankfurt(M) Flughafen Fernbf";
@@ -169,16 +170,16 @@ class CheckinTest extends TestCase
             $this->markTestSkipped($e->getMessage());
         }
 
-        $countDepartures = count($trainStationboard['departures']);
+        $countDepartures = is_countable($trainStationboard['departures']) ? count($trainStationboard['departures']) : 0;
         if ($countDepartures === 0) {
             $this->markTestSkipped("Unable to find matching trains. Is it night in $stationName?");
         }
 
         // Second: We don't like broken or cancelled trains.
         $i = 0;
-        while ((isset($trainStationboard['departures'][$i]->cancelled)
+        while ((property_exists($trainStationboard['departures'][$i], 'cancelled') && $trainStationboard['departures'][$i]->cancelled !== null
                 && $trainStationboard['departures'][$i]->cancelled)
-               || count($trainStationboard['departures'][$i]->remarks) != 0) {
+               || (is_countable($trainStationboard['departures'][$i]->remarks) ? count($trainStationboard['departures'][$i]->remarks) : 0) != 0) {
             $i++;
             if ($i == $countDepartures) {
                 $this->markTestSkipped("Unable to find unbroken train. Is it stormy in $stationName?");
@@ -414,6 +415,8 @@ class CheckinTest extends TestCase
      * @author jeyemwey
      */
     public function testCheckinAtBus603Potsdam(): void {
+        $trainStationboard = [];
+        $trip              = [];
         // First: Get a train that's fine for our stuff
         $timestamp = Carbon::parse("+1 days 10:00");
         try {
@@ -426,7 +429,7 @@ class CheckinTest extends TestCase
             $this->fail($exception->getMessage());
         }
 
-        if (count($trainStationboard['departures']) === 0) {
+        if ((is_countable($trainStationboard['departures']) ? count($trainStationboard['departures']) : 0) === 0) {
             $this->fail('Unable to find matching bus.');
         }
 
@@ -483,6 +486,8 @@ class CheckinTest extends TestCase
      * @see    https://github.com/Traewelling/traewelling/issues/37
      */
     public function testCheckinAtBerlinRingbahnRollingOverSuedkreuz(): void {
+        $trainStationboard = [];
+        $trip              = [];
         // First: Get a train that's fine for our stuff
         // The 10:00 train actually quits at Südkreuz, but the 10:05 does not.
         $timestamp   = Carbon::parse("+1 days 10:03");
@@ -497,7 +502,7 @@ class CheckinTest extends TestCase
             $this->markTestSkipped($e->getMessage());
         }
 
-        $countDepartures = count($trainStationboard['departures']);
+        $countDepartures = is_countable($trainStationboard['departures']) ? count($trainStationboard['departures']) : 0;
         if ($countDepartures === 0) {
             $this->markTestSkipped("Unable to find matching train.");
         }
@@ -576,9 +581,7 @@ class CheckinTest extends TestCase
         // We check out two stations later at Babelsberg (S)/Wattstr., Potsdam.
         $destinationStopover = $hafasTrip->stopoversNew
             ->where('trainStation.ibnr', 736089)
-            ->where(function(TrainStopover $stopover) use ($originStopover) {
-                return $stopover->arrival_planned->isAfter($originStopover->departure_planned);
-            })
+            ->where(fn(TrainStopover $stopover) => $stopover->arrival_planned->isAfter($originStopover->departure_planned))
             ->first();
 
         $response     = TrainCheckinController::checkin(
@@ -618,9 +621,7 @@ class CheckinTest extends TestCase
         // We check out at Babelsberg (S)/Wattstr., Potsdam. But this time we go a whole round with.
         $destinationStopover = $hafasTrip->stopoversNew
             ->where('trainStation.ibnr', 736089)
-            ->where(function(TrainStopover $stopover) use ($originStopover) {
-                return $stopover->arrival_planned->isAfter($originStopover->departure_planned->clone()->addMinutes(10));
-            })
+            ->where(fn(TrainStopover $stopover) => $stopover->arrival_planned->isAfter($originStopover->departure_planned->clone()->addMinutes(10)))
             ->first();
 
         $response     = TrainCheckinController::checkin(

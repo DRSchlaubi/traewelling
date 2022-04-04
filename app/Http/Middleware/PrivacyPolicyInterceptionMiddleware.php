@@ -15,16 +15,13 @@ class PrivacyPolicyInterceptionMiddleware extends ResponseController
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
      *
-     * @return mixed
      */
     public function handle(Request $request, Closure $next): mixed {
         $agreement = PrivacyPolicyController::getCurrentPrivacyPolicy();
 
         $user = auth()->user();
-        if ($user === null) {
+        if (!$user instanceof \Illuminate\Contracts\Auth\Authenticatable) {
             return $next($request);
         }
 

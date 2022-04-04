@@ -13,7 +13,7 @@ abstract class SettingsController extends Controller
 {
     /** @todo Implement privacy_hide_days */
     public static function updateSettings(array $fields, User $user = null): Authenticatable|null|User {
-        if ($user === null) {
+        if (!$user instanceof \Illuminate\Contracts\Auth\Authenticatable) {
             $user = auth()->user();
         }
 

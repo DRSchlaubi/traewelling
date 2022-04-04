@@ -14,9 +14,6 @@ abstract class StatisticController extends Controller
 {
 
     /**
-     * @param Carbon $from
-     * @param Carbon $until
-     * @return stdClass
      * @api v1
      */
     public static function getGlobalCheckInStats(Carbon $from, Carbon $until): stdClass {
@@ -38,11 +35,6 @@ abstract class StatisticController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param Carbon $from
-     * @param Carbon $until
-     * @param int $limit
-     * @return Collection
      * @api v1
      */
     public static function getTopTravelCategoryByUser(
@@ -74,11 +66,6 @@ abstract class StatisticController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param Carbon $from
-     * @param Carbon $until
-     * @param int $limit
-     * @return Collection
      * @api v1
      */
     public static function getTopTripOperatorByUser(
@@ -111,10 +98,6 @@ abstract class StatisticController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param Carbon $from
-     * @param Carbon $until
-     * @return Collection
      * @deprecated this will be replaced by getDailyTravelTimeByUser
      */
     public static function getWeeklyTravelTimeByUser(User $user, Carbon $from, Carbon $until): Collection {
@@ -144,10 +127,6 @@ abstract class StatisticController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param Carbon $from
-     * @param Carbon $until
-     * @return Collection
      * @api v1
      */
     public static function getDailyTravelTimeByUser(User $user, Carbon $from, Carbon $until): Collection {
@@ -173,10 +152,6 @@ abstract class StatisticController extends Controller
 
 
     /**
-     * @param User $user
-     * @param Carbon $from
-     * @param Carbon $until
-     * @return Collection
      * @api v1
      */
     public static function getTravelPurposes(User $user, Carbon $from, Carbon $until): Collection {

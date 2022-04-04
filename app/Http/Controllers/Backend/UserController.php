@@ -17,9 +17,6 @@ use InvalidArgumentException;
 abstract class UserController extends Controller
 {
     /**
-     * @param User $user
-     *
-     * @return bool
      * @throws Error
      */
     public static function deleteUserAccount(User $user): bool {
@@ -27,7 +24,7 @@ abstract class UserController extends Controller
 
         DatabaseNotification::where([
                                         'notifiable_id'   => $user->id,
-                                        'notifiable_type' => get_class($user)
+                                        'notifiable_type' => $user::class
                                     ])->delete();
 
         if ($user->delete()) {
@@ -37,10 +34,6 @@ abstract class UserController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param User $userToBeMuted
-     *
-     * @return bool
      * @throws UserAlreadyMutedException
      * @throws InvalidArgumentException
      */
@@ -65,10 +58,7 @@ abstract class UserController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param User $userToBeUnmuted
      *
-     * @return bool
      * @throws UserNotMutedException
      */
     public static function unmuteUser(User $user, User $userToBeUnmuted): bool {
@@ -82,9 +72,6 @@ abstract class UserController extends Controller
     }
 
     /**
-     * @param string|null $searchQuery
-     *
-     * @return Paginator
      * @throws InvalidArgumentException
      */
     public static function searchUser(?string $searchQuery): Paginator {

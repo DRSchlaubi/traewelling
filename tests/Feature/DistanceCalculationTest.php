@@ -78,13 +78,13 @@ class DistanceCalculationTest extends TestCase
 
     public function test_distance_calculation_for_foreign_trip_with_stopovers(): void {
         $origin      = TrainStation::factory([
-                                                 'id'        => 8700030,
+                                                 'id'        => 8_700_030,
                                                  'name'      => 'Lille Flandres',
                                                  'latitude'  => 50.637486,
                                                  'longitude' => 3.071129,
                                              ])->create();
         $destination = TrainStation::factory([
-                                                 'id'        => 8700014,
+                                                 'id'        => 8_700_014,
                                                  'name'      => 'Paris Nord',
                                                  'latitude'  => 48.880886,
                                                  'longitude' => 2.354931,

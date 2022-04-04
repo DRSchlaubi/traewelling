@@ -29,13 +29,11 @@ class TransportController extends ResponseController
     public function TrainAutocomplete($station): JsonResponse {
         try {
             $trainAutocompleteResponse = TransportBackend::getTrainStationAutocomplete($station)
-                                                         ->map(function($station) {
-                                                             return [
-                                                                 'id'       => $station['ibnr'],
-                                                                 'name'     => $station['name'],
-                                                                 'provider' => 'train'
-                                                             ];
-                                                         });
+                                                         ->map(fn($station) => [
+                                                             'id'       => $station['ibnr'],
+                                                             'name'     => $station['name'],
+                                                             'provider' => 'train'
+                                                         ]);
             return $this->sendResponse($trainAutocompleteResponse);
         } catch (HafasException $e) {
             return $this->sendError($e->getMessage(), 503);
@@ -120,7 +118,7 @@ class TransportController extends ResponseController
         }
         $hafasTrip = HafasTrip::where('trip_id', $request->input('tripID'))->first();
 
-        if ($hafasTrip === null && strlen($request->input('lineName')) == 0) {
+        if ($hafasTrip === null && strlen((string) $request->input('lineName')) == 0) {
             return $this->sendError('Please specify the trip with lineName.', 400);
         }
 
@@ -134,14 +132,14 @@ class TransportController extends ResponseController
 
         try {
             $origin = TrainStation::where('ibnr', $request->input('start'))->first();
-            if (isset($request->departure)) {
+            if (property_exists($request, 'departure') && $request->departure !== null) {
                 $departure = Carbon::parse($request->input('departure'));
             } else {
                 //Legacy: Get best matching timestamp from stopovers... it's just APIv0
                 $departure = $hafasTrip->stopoversNEW->where('train_station_id', $origin->id)->first()->departure_planned;
             }
             $destination = TrainStation::where('ibnr', $request->input('destination'))->first();
-            if (isset($request->arrival)) {
+            if (property_exists($request, 'arrival') && $request->arrival !== null) {
                 $arrival = Carbon::parse($request->input('arrival'));
             } else {
                 //Legacy: Get best matching timestamp from stopovers... it's just APIv0
@@ -149,15 +147,15 @@ class TransportController extends ResponseController
             }
 
             $backendResponse = TrainCheckinController::checkin(
-                user:        Auth::user(),
-                hafasTrip:   $hafasTrip,
-                origin:      $origin,
-                departure:   $departure,
-                destination: $destination,
-                arrival:     $arrival,
-                body:        $request->input('body'),
-                postOnTwitter: isset($request->tweet),
-                postOnMastodon: isset($request->toot)
+                user:           Auth::user(),
+                hafasTrip:      $hafasTrip,
+                origin:         $origin,
+                departure:      $departure,
+                destination:    $destination,
+                arrival:        $arrival,
+                body:           $request->input('body'),
+                postOnTwitter:  property_exists($request, 'tweet') && $request->tweet !== null,
+                postOnMastodon: property_exists($request, 'toot') && $request->toot !== null
             );
 
             $trainCheckin = $backendResponse['status']->trainCheckin;
@@ -169,9 +167,7 @@ class TransportController extends ResponseController
                                            'points'               => $trainCheckin['points'],
                                            'lineName'             => $trainCheckin['lineName'],
                                            'alsoOnThisConnection' => $trainCheckin['alsoOnThisConnection']
-                                               ->map(function($status) {
-                                                   return $status->user;
-                                               })
+                                               ->map(fn($status) => $status->user)
                                        ]);
 
         } catch (CheckInCollisionException $exception) {

@@ -16,9 +16,7 @@ class TwitterController extends Controller
     /**
      * Redirects to login-provider authentication
      *
-     * @param Request $request
      *
-     * @return RedirectResponse
      */
     public function redirect(Request $request): RedirectResponse {
         try {
@@ -35,7 +33,6 @@ class TwitterController extends Controller
     /**
      * Handles callback of login-provider with Socialite.
      *
-     * @param Request $request
      *
      * @return JsonResponse|RedirectResponse JSON if ?return=token, otherwise Redirect
      */

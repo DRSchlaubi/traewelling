@@ -23,9 +23,7 @@ class TransportController extends Controller
 {
 
     /**
-     * @param string $query
      *
-     * @return Collection
      * @throws HafasException
      * @api v1
      */
@@ -43,21 +41,17 @@ class TransportController extends Controller
             }
         }
 
-        return HafasController::getStations($query)->map(function(TrainStation $station) {
-            return [
-                'ibnr'          => $station->ibnr,
-                'rilIdentifier' => $station->rilIdentifier,
-                'name'          => $station->name
-            ];
-        });
+        return HafasController::getStations($query)->map(fn(TrainStation $station) => [
+            'ibnr'          => $station->ibnr,
+            'rilIdentifier' => $station->rilIdentifier,
+            'name'          => $station->name
+        ]);
     }
 
     /**
-     * @param string|int      $stationQuery
      * @param Carbon|null     $when
      * @param TravelType|null $travelType
      *
-     * @return array
      * @throws HafasException
      * @api v1
      */
@@ -73,7 +67,7 @@ class TransportController extends Controller
     ): array {
         $station = StationController::lookupStation($stationQuery);
 
-        $when  = $when ?? Carbon::now()->subMinutes(5);
+        $when  ??= Carbon::now()->subMinutes(5);
         $times = [
             'now'  => $when,
             'prev' => $when->clone()->subMinutes(15),
@@ -84,9 +78,7 @@ class TransportController extends Controller
             station: $station,
             when:    $when,
             type:    $travelType
-        )->sortBy(function($departure) {
-            return $departure->when ?? $departure->plannedWhen;
-        });
+        )->sortBy(fn($departure) => $departure->when ?? $departure->plannedWhen);
 
         return ['station' => $station, 'departures' => $departures->values(), 'times' => $times];
     }
@@ -118,14 +110,13 @@ class TransportController extends Controller
      * @param             $start
      * @param Carbon|null $departure
      *
-     * @return array|null
      * @throws HafasException
      * @deprecated replaced by getTrainTrip
      */
     public static function TrainTrip(string $tripId, string $lineName, $start, Carbon $departure = null): ?array {
         $hafasTrip = HafasController::getHafasTrip($tripId, $lineName);
         $hafasTrip->loadMissing(['stopoversNEW', 'originStation', 'destinationStation']);
-        $stopovers = json_decode($hafasTrip->stopovers, true);
+        $stopovers = json_decode($hafasTrip->stopovers, true, 512, JSON_THROW_ON_ERROR);
         $offset    = self::searchForId($start, $stopovers, $departure);
         if ($offset === null) {
             return null;
@@ -144,11 +135,6 @@ class TransportController extends Controller
     }
 
     /**
-     * @param string $tripId
-     * @param string $lineName
-     * @param string $start
-     *
-     * @return HafasTripResource
      * @throws HafasException
      * @throws StationNotOnTripException
      * @api v1
@@ -166,11 +152,7 @@ class TransportController extends Controller
     /**
      * Check if there are colliding CheckIns
      *
-     * @param User   $user
-     * @param Carbon $start
-     * @param Carbon $end
      *
-     * @return Collection
      * @see https://stackoverflow.com/questions/53697172/laravel-eloquent-query-to-check-overlapping-start-and-end-datetime-fields/53697498
      */
     public static function getOverlappingCheckIns(User $user, Carbon $start, Carbon $end): Collection {
@@ -210,8 +192,6 @@ class TransportController extends Controller
      * Get the PolyLine Model from Database
      *
      * @param string $polyline The Polyline as a json string given by hafas
-     *
-     * @return PolyLine
      */
     public static function getPolylineHash(string $polyline): PolyLine {
         return PolyLine::updateOrCreate([

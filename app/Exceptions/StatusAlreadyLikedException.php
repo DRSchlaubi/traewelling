@@ -8,12 +8,7 @@ use Exception;
 
 class StatusAlreadyLikedException extends Exception
 {
-    private $user;
-    private $status;
-
-    public function __construct(User $user, Status $status) {
-        $this->user   = $user;
-        $this->status = $status;
+    public function __construct(private readonly User $user, private readonly Status $status) {
         parent::__construct();
     }
 

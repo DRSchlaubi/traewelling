@@ -23,7 +23,7 @@ class ApiStatusTest extends ApiTestCase
                                         'Accept'        => 'application/json'])
                          ->get(route('api.v0.statuses.enroute'));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
     }
 
     /**
@@ -37,14 +37,14 @@ class ApiStatusTest extends ApiTestCase
                          ->get(route('api.v0.statuses.index'));
         $response->assertOk();
 
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
         //test page 2
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token,
                                         'Accept'        => 'application/json'])
                          ->json('GET', route('api.v0.statuses.index'), ['page' => 2]);
         $response->assertOk();
 
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
 
         //test gertrud posts
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token,
@@ -54,7 +54,7 @@ class ApiStatusTest extends ApiTestCase
         $response->assertOk();
 
 
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
     }
 
     /**
@@ -66,8 +66,8 @@ class ApiStatusTest extends ApiTestCase
                                         'Accept'        => 'application/json'])
                          ->get(route('api.v0.statuses.event', ['statusId' => '1']));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
-        $firstTrain = json_decode($response->getContent(), true)['data'][0];
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
+        $firstTrain = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)['data'][0];
         $this->assertTrue($firstTrain['event']['id'] == 1);
         $this->assertTrue($firstTrain['event']['name'] == 'Jährliches Modelleisenbahntreffen ' . date('Y'));
         $this->assertTrue($firstTrain['event']['slug'] == 'Modellbahn' . date('y'));
@@ -86,7 +86,7 @@ class ApiStatusTest extends ApiTestCase
                                         'Accept'        => 'application/json'])
                          ->get(route('api.v0.statuses.show', ['status' => '1']));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
     }
 
     /**
@@ -99,7 +99,7 @@ class ApiStatusTest extends ApiTestCase
                                         'Accept'        => 'application/json'])
                          ->get(route('api.v0.statuses.likes', ['statusId' => '1']));
         $response->assertOk();
-        $this->assertTrue(empty(json_decode($response->getContent())->data));
+        $this->assertTrue(empty(json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->data));
 
         //Like the status
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token,
@@ -120,7 +120,7 @@ class ApiStatusTest extends ApiTestCase
                                         'Accept'        => 'application/json'])
                          ->get(route('api.v0.statuses.likes', ['statusId' => '1']));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent())->data));
+        $this->assertFalse(empty(json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->data));
 
         //Delete the like
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token,
@@ -134,7 +134,7 @@ class ApiStatusTest extends ApiTestCase
                                         'Accept'        => 'application/json'])
                          ->get(route('api.v0.statuses.likes', ['statusId' => '1']));
         $response->assertOk();
-        $this->assertTrue(empty(json_decode($response->getContent())->data));
+        $this->assertTrue(empty(json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->data));
 
     }
 }

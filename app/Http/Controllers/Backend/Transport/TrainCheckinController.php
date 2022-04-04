@@ -155,9 +155,7 @@ abstract class TrainCheckinController extends Controller
                                                          'departure'   => $firstStop->departure_planned,
                                                          'arrival'     => $lastStop->arrival_planned
                                                      ]);
-        $alsoOnThisConnection = $trainCheckin->alsoOnThisConnection->reject(function($status) {
-            return $status->statusInvisibleToMe;
-        });
+        $alsoOnThisConnection = $trainCheckin->alsoOnThisConnection->reject(fn($status) => $status->statusInvisibleToMe);
 
         foreach ($alsoOnThisConnection as $otherStatus) {
             if ($otherStatus?->user && $otherStatus->user->can('view', $status)) {

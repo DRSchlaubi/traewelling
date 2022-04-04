@@ -116,7 +116,7 @@ class FrontendTransportController extends Controller
         }
 
         // Find out where this train terminates and offer this as a "fast check-in" option.
-        $terminalStopIndex = count($TrainTripResponse['stopovers']) - 1;
+        $terminalStopIndex = (is_countable($TrainTripResponse['stopovers']) ? count($TrainTripResponse['stopovers']) : 0) - 1;
         while ($terminalStopIndex >= 1 && @$TrainTripResponse['stopovers'][$terminalStopIndex]['cancelled'] == true) {
             $terminalStopIndex--;
         }
@@ -150,19 +150,19 @@ class FrontendTransportController extends Controller
 
         try {
             $backendResponse = TrainCheckinController::checkin(
-                user:        Auth::user(),
-                hafasTrip:   HafasTrip::where('trip_id', $validated['tripID'])->first(),
-                origin:      TrainStation::where('ibnr', $validated['start'])->first(),
-                departure:   Carbon::parse($validated['departure']),
-                destination: TrainStation::where('ibnr', $validated['destination'])->first(),
-                arrival:     Carbon::parse($validated['arrival']),
-                tripType:    Business::from($validated['business_check']),
-                visibility:  StatusVisibility::tryFrom($validated['checkinVisibility'] ?? StatusVisibility::PUBLIC->value),
-                body:        $validated['body'] ?? null,
-                event:       isset($validated['event']) ? Event::find($validated['event']) : null,
+                user:           Auth::user(),
+                hafasTrip:      HafasTrip::where('trip_id', $validated['tripID'])->first(),
+                origin:         TrainStation::where('ibnr', $validated['start'])->first(),
+                departure:      Carbon::parse($validated['departure']),
+                destination:    TrainStation::where('ibnr', $validated['destination'])->first(),
+                arrival:        Carbon::parse($validated['arrival']),
+                tripType:       Business::from($validated['business_check']),
+                visibility:     StatusVisibility::tryFrom($validated['checkinVisibility'] ?? StatusVisibility::PUBLIC->value),
+                body:           $validated['body'] ?? null,
+                event:          isset($validated['event']) ? Event::find($validated['event']) : null,
                 // force:       false, //TODO
-                postOnTwitter: isset($request->tweet_check),
-                postOnMastodon: isset($request->toot_check)
+                postOnTwitter:  property_exists($request, 'tweet_check') && $request->tweet_check !== null,
+                postOnMastodon: property_exists($request, 'toot_check') && $request->toot_check !== null
             );
 
             $trainCheckin = $backendResponse['status']->trainCheckin;

@@ -19,9 +19,7 @@ class SitemapController extends Controller
 {
     public function renderSitemap(Request $request): Response {
         $sitemap = SitemapGenerator::create(config('app.url'))
-                                   ->shouldCrawl(function() {
-                                       return false;
-                                   })
+                                   ->shouldCrawl(fn() => false)
                                    ->getSitemap();
 
         if ($request->has('static')) {

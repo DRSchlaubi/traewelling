@@ -12,7 +12,6 @@ class StatisticsTravelPurposeResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param Request $request
-     * @return array
      */
     public function toArray($request): array {
         if ($this->reason == Business::PRIVATE->value) {

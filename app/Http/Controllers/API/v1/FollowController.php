@@ -42,7 +42,7 @@ class FollowController extends ResponseController
         $userToUnfollow = User::find($validated['userId']);
 
         $destroyFollowResponse = UserBackend::destroyFollow(Auth::user(), $userToUnfollow);
-        if ($destroyFollowResponse === false) {
+        if (!$destroyFollowResponse) {
             return $instance->sendv1Error(['message' => __('controller.user.follow-404')], 409);
         }
 

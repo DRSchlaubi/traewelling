@@ -14,10 +14,8 @@ class UserProfileSettingsResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param Request $request
-     *
-     * @return array|Arrayable|JsonSerializable
      */
-    public function toArray($request) {
+    public function toArray($request): array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable {
         return [
             'username'                  => $this->username,
             'name'                      => $this->name,

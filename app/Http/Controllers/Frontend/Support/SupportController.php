@@ -14,7 +14,7 @@ class SupportController extends Controller
 
     public static function renderSupportPage(): View {
         return view('support.form', [
-            'emailAvailable' => isset(auth()->user()->email, auth()->user()->email_verified_at)
+            'emailAvailable' => property_exists(auth()->user(), 'email') && auth()->user()->email !== null && (property_exists(auth()->user(), 'email_verified_at') && auth()->user()->email_verified_at !== null)
         ]);
     }
 

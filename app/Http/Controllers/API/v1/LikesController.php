@@ -17,8 +17,6 @@ use InvalidArgumentException;
 class LikesController extends ResponseController
 {
     /**
-     * @param int $status
-     * @return AnonymousResourceCollection
      * @todo maybe put this in separate controller?
      */
     public function show(int $status): AnonymousResourceCollection {
@@ -27,10 +25,6 @@ class LikesController extends ResponseController
         );
     }
 
-    /**
-     * @param int $status
-     * @return JsonResponse
-     */
     public function create(int $status): JsonResponse {
         $status = Status::find($status);
         if ($status == null) {
@@ -44,10 +38,6 @@ class LikesController extends ResponseController
         }
     }
 
-    /**
-     * @param int $statusId
-     * @return JsonResponse
-     */
     public function destroy(int $statusId): JsonResponse {
         try {
             StatusBackend::destroyLike(Auth::user(), $statusId);

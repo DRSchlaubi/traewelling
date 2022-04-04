@@ -109,7 +109,6 @@ class TrainCheckin extends Model
 
     /**
      * The duration of the journey in minutes
-     * @return int
      */
     public function getDurationAttribute(): int {
         try {
@@ -127,7 +126,6 @@ class TrainCheckin extends Model
     }
 
     /**
-     * @return Collection
      * @todo Sichtbarkeit der CheckIns prüfen! Hier werden auch Private CheckIns angezeigt
      */
     public function getAlsoOnThisConnectionAttribute(): Collection {
@@ -139,11 +137,7 @@ class TrainCheckin extends Model
                                ['departure', '<', $this->arrival]
                            ])
                    ->get()
-                   ->map(function($trainCheckIn) {
-                       return $trainCheckIn->status;
-                   })
-                   ->filter(function($status) {
-                       return $status !== null;
-                   });
+                   ->map(fn($trainCheckIn) => $trainCheckIn->status)
+                   ->filter(fn($status) => $status !== null);
     }
 }

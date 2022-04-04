@@ -10,11 +10,6 @@ use Illuminate\Http\Request;
 
 class SupportController extends ResponseController
 {
-    /**
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
     public function createTicket(Request $request): JsonResponse {
         $validated = $request->validate([
                                             'subject' => ['required', 'string', 'max:255'],

@@ -14,7 +14,7 @@ function get_current_git_commit() {
         } else {
             return false;
         }
-    } catch (Exception $e) {
+    } catch (Exception) {
         return false;
     }
 }
@@ -49,7 +49,6 @@ function secondsToDuration($seconds): array {
 /**
  * @param array $duration from the secondsToDuration
  *
- * @return string
  * @deprecated as soon as vue is implemented
  */
 function durationToSpan($duration): string {

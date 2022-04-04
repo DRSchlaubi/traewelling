@@ -120,16 +120,17 @@ class CheckinController
     }
 
     public function checkin(Request $request): View|RedirectResponse {
-        $validated = $request->validate([
-                                            'body'        => ['nullable', 'max:280'],
-                                            'business'    => ['nullable', new Enum(Business::class)],
-                                            'visibility'  => ['nullable', new Enum(StatusVisibility::class)],
-                                            'eventId'     => ['nullable', 'integer', 'exists:events,id'],
-                                            'tweet'       => ['nullable', 'max:2'],
-                                            'toot'        => ['nullable', 'max:2'],
-                                            'tripId'      => ['required'],
-                                            'lineName'    => ['required'],
-                                            'startIBNR'   => ['required', 'numeric'],
+        $trainCheckinResponse = [];
+        $validated            = $request->validate([
+                                                       'body'       => ['nullable', 'max:280'],
+                                                       'business'   => ['nullable', new Enum(Business::class)],
+                                                       'visibility' => ['nullable', new Enum(StatusVisibility::class)],
+                                                       'eventId'    => ['nullable', 'integer', 'exists:events,id'],
+                                                       'tweet'      => ['nullable', 'max:2'],
+                                                       'toot'       => ['nullable', 'max:2'],
+                                                       'tripId'     => ['required'],
+                                                       'lineName'   => ['required'],
+                                                       'startIBNR'  => ['required', 'numeric'],
                                             'destination' => ['required', 'json'],
                                             'departure'   => ['required', 'date'],
                                             'force'       => ['nullable', 'max:2'],
@@ -145,19 +146,19 @@ class CheckinController
 
         try {
             $backendResponse = TrainCheckinController::checkin(
-                user:        $user,
-                hafasTrip:   HafasController::getHafasTrip($validated['tripId'], $validated['lineName']),
-                origin:      TrainStation::where('ibnr', $validated['startIBNR'])->first(),
-                departure:   Carbon::parse($validated['departure']),
-                destination: TrainStation::where('ibnr', $destination['destination'])->first(),
-                arrival:     Carbon::parse($validated['arrival']),
-                tripType:    Business::tryFrom($validated['business'] ?? 0),
-                visibility:  StatusVisibility::tryFrom($validated['visibility'] ?? 0),
-                body:        $validated['body'] ?? null,
-                event:       isset($validated['eventId']) ? Event::find($validated['eventId']) : null,
+                user:           $user,
+                hafasTrip:      HafasController::getHafasTrip($validated['tripId'], $validated['lineName']),
+                origin:         TrainStation::where('ibnr', $validated['startIBNR'])->first(),
+                departure:      Carbon::parse($validated['departure']),
+                destination:    TrainStation::where('ibnr', $destination['destination'])->first(),
+                arrival:        Carbon::parse($validated['arrival']),
+                tripType:       Business::tryFrom($validated['business'] ?? 0),
+                visibility:     StatusVisibility::tryFrom($validated['visibility'] ?? 0),
+                body:           $validated['body'] ?? null,
+                event:          isset($validated['eventId']) ? Event::find($validated['eventId']) : null,
                 force: isset($validated['force']),
-                postOnTwitter: isset($request->tweet_check),
-                postOnMastodon: isset($request->toot_check)
+                postOnTwitter:  property_exists($request, 'tweet_check') && $request->tweet_check !== null,
+                postOnMastodon: property_exists($request, 'toot_check') && $request->toot_check !== null
             );
 
             $status = $backendResponse['status'];

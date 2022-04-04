@@ -34,9 +34,6 @@ class FrontendUserController extends Controller
     }
 
     /**
-     * @param Request $request
-     *
-     * @return JsonResponse
      * @deprecated
      */
     public function CreateFollow(Request $request): JsonResponse {
@@ -57,11 +54,6 @@ class FrontendUserController extends Controller
         return response()->json(['message' => __('controller.user.follow-ok')], 201);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
     public function requestFollow(Request $request): JsonResponse {
         $validated = $request->validate([
                                             'follow_id' => ['required', 'exists:users,id']
@@ -74,16 +66,13 @@ class FrontendUserController extends Controller
         } catch (AlreadyFollowingException) {
             return response()->json(['message' => __('controller.user.follow-request-already-exists')], 409);
         }
-        if ($createFollowResponse === false) {
+        if (!$createFollowResponse) {
             abort(409);
         }
         return response()->json(['message' => __('controller.user.follow-request-ok')], 201);
     }
 
     /**
-     * @param Request $request
-     *
-     * @return JsonResponse
      * @deprecated
      */
     public function destroyFollow(Request $request): JsonResponse {
@@ -93,7 +82,7 @@ class FrontendUserController extends Controller
         $userToUnfollow = User::find($validated['follow_id']);
 
         $destroyFollowResponse = UserBackend::destroyFollow(Auth::user(), $userToUnfollow);
-        if ($destroyFollowResponse === false) {
+        if (!$destroyFollowResponse) {
             return response()->json(['message' => __('controller.user.follow-404')], 409);
         }
         return response()->json(['message' => __('controller.user.follow-destroyed')], 200);

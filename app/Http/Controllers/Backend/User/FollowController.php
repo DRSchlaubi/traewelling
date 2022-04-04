@@ -27,10 +27,7 @@ abstract class FollowController extends Controller
     }
 
     /**
-     * @param Follow $follow
      * @param User   $user - The acting user
-     *
-     * @return bool|null
      * @throws PermissionException
      */
     public static function removeFollower(Follow $follow, User $user): bool|null {
@@ -40,12 +37,6 @@ abstract class FollowController extends Controller
         return $follow->delete();
     }
 
-    /**
-     * @param int $userId
-     * @param int $followerID
-     *
-     * @return FollowRequest|null
-     */
     public static function rejectFollower(int $userId, int $followerID): ?FollowRequest {
         $request = FollowRequest::where('user_id', $followerID)->where('follow_id', $userId)->firstOrFail();
 

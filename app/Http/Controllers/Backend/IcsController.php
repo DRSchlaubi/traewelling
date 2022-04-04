@@ -21,20 +21,14 @@ abstract class IcsController extends Controller
         ?Carbon $until = null): Calendar {
         $icsToken = IcsToken::where([['token', $token], ['user_id', $user->id]])->firstOrFail();
 
-        $trainCheckIns = $user->statuses->map(function($status) {
-            return $status->trainCheckIn;
-        });
+        $trainCheckIns = $user->statuses->map(fn($status) => $status->trainCheckIn);
 
         if (isset($from)) {
-            $trainCheckIns = $trainCheckIns->filter(function($checkIn) use ($from) {
-                return $checkIn->departure->isAfter($from);
-            });
+            $trainCheckIns = $trainCheckIns->filter(fn($checkIn) => $checkIn->departure->isAfter($from));
         }
 
         if (isset($until)) {
-            $trainCheckIns = $trainCheckIns->filter(function($checkIn) use ($until) {
-                return $checkIn->departure->isBefore($until);
-            });
+            $trainCheckIns = $trainCheckIns->filter(fn($checkIn) => $checkIn->departure->isBefore($until));
         }
 
         $trainCheckIns = $trainCheckIns->sortByDesc('created_at')
@@ -70,10 +64,6 @@ abstract class IcsController extends Controller
                                 ]);
     }
 
-    /**
-     * @param User $user
-     * @param int  $tokenId
-     */
     public static function revokeIcsToken(User $user, int $tokenId): void {
         $affectedRows = IcsToken::where('user_id', $user->id)
                                 ->where('id', $tokenId)

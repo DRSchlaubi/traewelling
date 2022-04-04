@@ -15,10 +15,7 @@ class StatusPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param User|null $user
      * @param Status    $status
-     *
-     * @return Response|bool
      * @todo implement blocked and muted
      */
     public function view(?User $user, Status $status): Response|bool {
@@ -66,10 +63,7 @@ class StatusPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param User   $user
-     * @param Status $status
      *
-     * @return bool
      * @todo test
      */
     public function update(User $user, Status $status): bool {
@@ -79,10 +73,7 @@ class StatusPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param User   $user
-     * @param Status $status
      *
-     * @return bool
      * @todo test
      */
     public function delete(User $user, Status $status): bool {

@@ -8,8 +8,11 @@ use Exception;
 
 class AlreadyAcceptedException extends Exception
 {
-    private User $user;
-    private User $initiator;
+    /**
+     * @var \App\Models\PrivacyAgreement|mixed
+     */
+    public                $privacyPolicy;
+    private readonly User $initiator;
 
     /**
      * AlreadyFollowingException constructor.
@@ -18,19 +21,23 @@ class AlreadyAcceptedException extends Exception
      * $initiator has already requested a follow to $user
      *
      * @param PrivacyAgreement privacyPolicy
-     * @param User $user
      */
-    public function __construct(PrivacyAgreement $agreement, User $user) {
+    public function __construct(PrivacyAgreement $agreement, private readonly User $user) {
         $this->privacyPolicy = $agreement;
-        $this->user          = $user;
         parent::__construct();
     }
 
-    public function getPrivacyValidity(): \DateTime {
+    /**
+     * @return \DateTime|\DateTimeImmutable
+     */
+    public function getPrivacyValidity(): \DateTimeInterface {
         return $this->privacyPolicy->valid_at;
     }
 
-    public function getUserAccepted(): \DateTime {
+    /**
+     * @return \DateTime|\DateTimeImmutable
+     */
+    public function getUserAccepted(): \DateTimeInterface {
         return $this->user->privacy_ack_at;
     }
 }

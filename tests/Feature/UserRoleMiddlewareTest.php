@@ -15,15 +15,9 @@ class UserRoleMiddlewareTest extends TestCase
     protected function setUp(): void {
         parent::setUp();
 
-        Route::middleware('userrole:0')->any('/_test/role_user', function() {
-            return 'OK';
-        });
-        Route::middleware('userrole:5')->any('/_test/role_mod', function() {
-            return 'OK';
-        });
-        Route::middleware('userrole:10')->any('/_test/role_admin', function() {
-            return 'OK';
-        });
+        Route::middleware('userrole:0')->any('/_test/role_user', fn() => 'OK');
+        Route::middleware('userrole:5')->any('/_test/role_mod', fn() => 'OK');
+        Route::middleware('userrole:10')->any('/_test/role_admin', fn() => 'OK');
     }
 
     /**

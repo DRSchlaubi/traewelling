@@ -23,15 +23,13 @@ class NotificationController extends Controller
                 try {
                     $notification->type::detail($notification);
                     return $notification;
-                } catch (ShouldDeleteNotificationException $e) {
+                } catch (ShouldDeleteNotificationException) {
                     $notification->delete();
                     return null;
                 }
             })
             // We don't need empty notifications
-            ->filter(function($notificationOrNull) {
-                return $notificationOrNull != null;
-            })
+            ->filter(fn($notificationOrNull) => $notificationOrNull != null)
             ->values();
     }
 
@@ -56,10 +54,8 @@ class NotificationController extends Controller
                        }
                        return null;
                    })
-                   ->filter(function($notificationOrNull) {
-                       // We don't need empty notifications
-                       return $notificationOrNull != null;
-                   })
+                   ->filter(fn($notificationOrNull) => // We don't need empty notifications
+                       $notificationOrNull != null)
                    ->values();
     }
 
@@ -68,7 +64,7 @@ class NotificationController extends Controller
 
         // Might have cached the html property and would then try to shove it in the DB, mostly
         // happened during tests.
-        if (isset($notification->html)) {
+        if (property_exists($notification, 'html') && $notification->html !== null) {
             unset($notification->html);
         }
 
@@ -85,7 +81,7 @@ class NotificationController extends Controller
         try {
             $notification = Auth::user()->notifications->where('id', $notificationID)->first();
             $notification->delete();
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return Response::json([], 404);
         }
 
@@ -96,9 +92,6 @@ class NotificationController extends Controller
         Auth::user()->unreadNotifications->markAsRead();
     }
 
-    /**
-     * @return int
-     */
     public static function count(): int {
         return Auth::user()->notifications->count();
     }

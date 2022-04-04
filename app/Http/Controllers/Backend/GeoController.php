@@ -16,7 +16,6 @@ abstract class GeoController extends Controller
     /**
      * Timestamps in the GeoJSON are required to calculate the distance of ring lines correctly.
      *
-     * @param HafasTrip $hafasTrip
      *
      * @return mixed
      * @throws JsonException
@@ -25,7 +24,7 @@ abstract class GeoController extends Controller
         $geoJsonObj = json_decode($hafasTrip->polyline->polyline, false, 512, JSON_THROW_ON_ERROR);
         $stopovers  = $hafasTrip->stopoversNEW;
         foreach ($geoJsonObj->features as $polylineFeature) {
-            if (!isset($polylineFeature->properties->id)) {
+            if (!(property_exists($polylineFeature->properties, 'id') && $polylineFeature->properties->id !== null)) {
                 continue;
             }
             $stopover                                       = $stopovers->where('trainStation.ibnr', $polylineFeature->properties->id)
@@ -47,7 +46,7 @@ abstract class GeoController extends Controller
         $originIndex      = null;
         $destinationIndex = null;
         foreach ($geoJson->features as $key => $data) {
-            if (!isset($data->properties->id)) {
+            if (!(property_exists($data->properties, 'id') && $data->properties->id !== null)) {
                 continue;
             }
             if ($originIndex === null
@@ -98,11 +97,7 @@ abstract class GeoController extends Controller
     /**
      * Fallback calculation if no polyline is given. Calculates the length using the coordinates of the stations.
      *
-     * @param HafasTrip     $hafasTrip
-     * @param TrainStopover $origin
-     * @param TrainStopover $destination
      *
-     * @return int
      */
     private static function calculateDistanceByStopovers(
         HafasTrip     $hafasTrip,
@@ -110,12 +105,8 @@ abstract class GeoController extends Controller
         TrainStopover $destination
     ): int {
         $stopovers                = $hafasTrip->stopoversNEW->sortBy('departure');
-        $originStopoverIndex      = $stopovers->search(function($item) use ($origin) {
-            return $item->is($origin);
-        });
-        $destinationStopoverIndex = $stopovers->search(function($item) use ($destination) {
-            return $item->is($destination);
-        });
+        $originStopoverIndex      = $stopovers->search(fn($item) => $item->is($origin));
+        $destinationStopoverIndex = $stopovers->search(fn($item) => $item->is($destination));
 
         $stopovers = $stopovers->slice($originStopoverIndex, $destinationStopoverIndex - $originStopoverIndex + 1);
 
@@ -147,7 +138,7 @@ abstract class GeoController extends Controller
             return 0.0;
         }
 
-        $equatorialRadiusInMeters = 6378137;
+        $equatorialRadiusInMeters = 6_378_137;
 
         $latA     = $latitudeA / 180 * M_PI;
         $lonA     = $longitudeA / 180 * M_PI;

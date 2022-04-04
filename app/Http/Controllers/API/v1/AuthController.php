@@ -15,9 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends ResponseController
 {
     /**
-     * @param Request $request
      *
-     * @return JsonResponse
      * @api  v1
      * @todo refactor this
      */
@@ -53,9 +51,7 @@ class AuthController extends ResponseController
     /**
      * Login
      *
-     * @param Request $request
      *
-     * @return JsonResponse
      * @api v1
      */
     public function login(Request $request): JsonResponse {
@@ -71,9 +67,6 @@ class AuthController extends ResponseController
     }
 
     /**
-     * @param Request $request
-     *
-     * @return JsonResponse
      * @api v1
      */
     public function logout(Request $request): JsonResponse {
@@ -87,9 +80,7 @@ class AuthController extends ResponseController
 
     /**
      *
-     * @param Request $request
      *
-     * @return JsonResponse
      * @api v1
      */
     public function user(Request $request): JsonResponse {

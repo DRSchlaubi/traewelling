@@ -29,9 +29,7 @@ class StatusController extends Controller
     /**
      * Authorization in Frontend required! $this->authorize('view', $status);
      *
-     * @param int $statusId
      *
-     * @return Status
      * @throws HttpException
      * @throws ModelNotFoundException
      * @api v1
@@ -73,12 +71,8 @@ class StatusController extends Controller
                                         ->where('arrival', '>', date('Y-m-d H:i:s'));
                               })
                               ->get()
-                              ->filter(function(Status $status) {
-                                  return Gate::allows('view', $status);
-                              })
-                              ->sortByDesc(function(Status $status) {
-                                  return $status->trainCheckin->departure;
-                              })->values();
+                              ->filter(fn(Status $status) => Gate::allows('view', $status))
+                              ->sortByDesc(fn(Status $status) => $status->trainCheckin->departure)->values();
         } else {
             $status = Status::with([
                                        'user',
@@ -102,9 +96,7 @@ class StatusController extends Controller
         if ($statuses === null) {
             return null;
         }
-        $polylines = $statuses->map(function($status) {
-            return json_encode(GeoController::getMapLinesForCheckin($status->trainCheckin));
-        });
+        $polylines = $statuses->map(fn($status) => json_encode(GeoController::getMapLinesForCheckin($status->trainCheckin), JSON_THROW_ON_ERROR));
         if ($array) {
             return ['statuses' => $statuses->toArray(), 'polylines' => $polylines];
         }
@@ -113,10 +105,7 @@ class StatusController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param int  $statusId
      *
-     * @return bool|null
      * @throws PermissionException|ModelNotFoundException
      */
     public static function DeleteStatus(User $user, int $statusId): ?bool {
@@ -133,13 +122,8 @@ class StatusController extends Controller
     }
 
     /**
-     * @param User             $user
-     * @param int              $statusId
      * @param string|null      $body
-     * @param Business         $business
-     * @param StatusVisibility $visibility
      *
-     * @return Status
      * @throws PermissionException
      * @api v1
      */
@@ -167,10 +151,7 @@ class StatusController extends Controller
     /**
      * Create a Statuslike for a given User
      *
-     * @param User   $user
-     * @param Status $status
      *
-     * @return Like
      * @throws StatusAlreadyLikedException|PermissionException
      */
     public static function createLike(User $user, Status $status): Like {
@@ -195,10 +176,7 @@ class StatusController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param int  $statusId
      *
-     * @return void
      * @throws InvalidArgumentException
      */
     public static function destroyLike(User $user, int $statusId): void {
@@ -219,13 +197,8 @@ class StatusController extends Controller
                      ->count();
     }
 
-    /**
-     * @param string|null $slug
-     * @param int|null    $id
-     *
-     * @return array
-     */
     public static function getStatusesByEvent(?string $slug, ?int $id): array {
+        $event = null;
         if ($slug !== null) {
             $event = Event::where('slug', $slug)->firstOrFail();
         }

@@ -23,7 +23,7 @@ class IcsController extends Controller
                                         ]);
 
         $user               = User::where('id', $validated['user_id'])->firstOrFail();
-        $validated['limit'] = $validated['limit'] ?? 1000;
+        $validated['limit'] ??= 1000;
         $from               = Carbon::parse($validated['from']);
         $until              = Carbon::parse($validated['until']);
 

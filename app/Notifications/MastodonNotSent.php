@@ -15,19 +15,14 @@ class MastodonNotSent extends Notification
 {
     use Queueable;
 
-    public $error;
-    public $status;
-
-    public function __construct($error, Status $status) {
-        $this->error  = $error;
-        $this->status = $status;
+    public function __construct(public $error, public Status $status) {
     }
 
     /** @deprecated will be handled in frontend */
     public static function render($notification): ?string {
         try {
             $detail = self::detail($notification);
-        } catch (ShouldDeleteNotificationException $e) {
+        } catch (ShouldDeleteNotificationException) {
             $notification->delete();
             return null;
         }
@@ -48,9 +43,6 @@ class MastodonNotSent extends Notification
     }
 
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return stdClass
      * @throws ShouldDeleteNotificationException
      */
     public static function detail(DatabaseNotification $notification): stdClass {

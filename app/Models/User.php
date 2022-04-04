@@ -86,7 +86,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @return float
      * @deprecated Use speed variable at train_checkins instead
      */
     public function getAverageSpeedAttribute(): float {
@@ -109,11 +108,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function follows(): BelongsToMany {
-        return $this->belongsToMany(__CLASS__, 'follows', 'user_id', 'follow_id');
+        return $this->belongsToMany(self::class, 'follows', 'user_id', 'follow_id');
     }
 
     public function mutedUsers(): BelongsToMany {
-        return $this->belongsToMany(__CLASS__, 'user_mutes', 'user_id', 'muted_id');
+        return $this->belongsToMany(self::class, 'user_mutes', 'user_id', 'muted_id');
     }
 
     public function followRequests(): HasMany {
@@ -154,7 +153,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @todo test
      */
     public function userFollowings(): BelongsToMany {
-        return $this->belongsToMany(__CLASS__, 'follows', 'user_id', 'follow_id');
+        return $this->belongsToMany(self::class, 'follows', 'user_id', 'follow_id');
     }
 
     /**
@@ -162,7 +161,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @todo test
      */
     public function userFollowers(): BelongsToMany {
-        return $this->belongsToMany(__CLASS__, 'follows', 'follow_id', 'user_id');
+        return $this->belongsToMany(self::class, 'follows', 'follow_id', 'user_id');
     }
 
     /**
@@ -170,7 +169,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @todo test
      */
     public function userFollowRequests(): BelongsToMany {
-        return $this->belongsToMany(__CLASS__, 'follow_requests', 'follow_id', 'user_id');
+        return $this->belongsToMany(self::class, 'follow_requests', 'follow_id', 'user_id');
     }
 
     /**
@@ -194,7 +193,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @return string|null
      * @deprecated
      */
     public function getTwitterUrlAttribute(): ?string {
@@ -229,8 +227,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the entity's notifications.
-     *
-     * @return MorphMany
      */
     public function notifications(): MorphMany {
         return $this->morphMany(DatabaseNotification::class, 'notifiable')->orderBy('created_at', 'desc');

@@ -17,15 +17,12 @@ class UserFollowed extends Notification
 {
     use Queueable;
 
-    public $follow;
-
     /**
      * Create a new notification instance
      *
      * @return void
      */
-    public function __construct(Follow $follow = null) {
-        $this->follow = $follow;
+    public function __construct(public Follow $follow = null) {
     }
 
     /** @deprecated will be handled in frontend */
@@ -52,9 +49,6 @@ class UserFollowed extends Notification
     }
 
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return stdClass
      * @throws ShouldDeleteNotificationException
      */
     public static function detail(DatabaseNotification $notification): stdClass {
@@ -86,8 +80,6 @@ class UserFollowed extends Notification
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array
      */
     public function via(): array {
         return ['database'];
@@ -95,8 +87,6 @@ class UserFollowed extends Notification
 
     /**
      * Get the array representation of the notification.
-     *
-     * @return array
      */
     public function toArray(): array {
         return [

@@ -47,7 +47,6 @@ class AuthController extends ResponseController
     }
 
     /**
-     * @param Request $request
      *
      * @return JsonResponse
      * @deprecated with apiv1
@@ -68,13 +67,11 @@ class AuthController extends ResponseController
     }
 
     /**
-     * @param Request $request
-     *
-     * @return JsonResponse
      * @deprecated with apiv1
      */
     public function logout(Request $request): JsonResponse {
-        $isUser = $request->user()->token()->revoke();
+        $success = [];
+        $isUser  = $request->user()->token()->revoke();
         if ($isUser) {
             $success['message'] = "Successfully logged out.";
             return $this->sendResponse($success);

@@ -12,9 +12,6 @@ use Illuminate\Support\ItemNotFoundException;
 abstract class NotificationController extends Controller
 {
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return DatabaseNotification
      * @api v1
      */
     public static function toggleReadState(DatabaseNotification $notification): DatabaseNotification {
@@ -26,9 +23,6 @@ abstract class NotificationController extends Controller
     }
 
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return DatabaseNotification
      * @api v1
      */
     public static function readMessage(DatabaseNotification $notification): DatabaseNotification {
@@ -37,9 +31,6 @@ abstract class NotificationController extends Controller
     }
 
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return DatabaseNotification
      * @api v1
      */
     public static function unreadMessage(DatabaseNotification $notification): DatabaseNotification {
@@ -63,9 +54,7 @@ abstract class NotificationController extends Controller
                 }
             })
             // We don't need empty notifications
-            ->filter(function($notificationOrNull) {
-                return $notificationOrNull !== null;
-            })
+            ->filter(fn($notificationOrNull) => $notificationOrNull !== null)
             ->values();
     }
 
@@ -80,7 +69,6 @@ abstract class NotificationController extends Controller
 
     /**
      * Return current unread notifications count
-     * @return int
      */
     public static function count(): int {
         return Auth::user()->unreadNotifications->count();

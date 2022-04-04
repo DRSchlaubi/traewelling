@@ -23,8 +23,6 @@ abstract class MastodonController extends Controller
      * If logged in, the user will have the login-provider added.
      * If a user with corresponding login-provider already exists, it will be returned.
      *
-     * @param SocialiteUser  $socialiteUser
-     * @param MastodonServer $server
      *
      * @return User model
      */
@@ -46,9 +44,6 @@ abstract class MastodonController extends Controller
     }
 
     /**
-     * @param string $domain
-     *
-     * @return MastodonServer|null
      * @throws InvalidMastodonException
      */
     public static function getMastodonServer(string $domain): ?MastodonServer {
@@ -75,9 +70,6 @@ abstract class MastodonController extends Controller
     }
 
     /**
-     * @param string $domain
-     *
-     * @return MastodonServer
      * @throws InvalidMastodonException
      */
     private static function createMastodonServer(string $domain): MastodonServer {

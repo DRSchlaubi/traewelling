@@ -29,7 +29,6 @@ class UserPolicy
      * @param User|null $user
      * @param User      $model
      *
-     * @return Response
      * @test check table above and test
      */
     public function view(?User $user, User $model): Response {
@@ -51,10 +50,7 @@ class UserPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param User $user
-     * @param User $model
      *
-     * @return bool
      */
     public function update(User $user, User $model): bool {
         return $user->id === $model->id;
@@ -63,10 +59,7 @@ class UserPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param User $user
-     * @param User $model
      *
-     * @return bool
      */
     public function delete(User $user, User $model): bool {
         return $user->id === $model->id;

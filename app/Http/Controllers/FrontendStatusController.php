@@ -61,9 +61,6 @@ class FrontendStatusController extends Controller
     }
 
     /**
-     * @param Request $request
-     *
-     * @return JsonResponse|RedirectResponse
      * @todo Is this api? Because of JsonReponse. But if yes: Why it does an Redirect?
      */
     public function DeleteStatus(Request $request): JsonResponse|RedirectResponse {
@@ -177,7 +174,7 @@ class FrontendStatusController extends Controller
             'status'      => $status,
             'time'        => time(),
             'title'       => __('status.ogp-title', ['name' => $status->user->username]),
-            'description' => trans_choice('status.ogp-description', preg_match('/\s/', $status->trainCheckin->HafasTrip->linename), [
+            'description' => trans_choice('status.ogp-description', preg_match('/\s/', (string) $status->trainCheckin->HafasTrip->linename), [
                 'linename'    => $status->trainCheckin->HafasTrip->linename,
                 'distance'    => number($status->trainCheckin->distance / 1000, 1),
                 'destination' => $status->trainCheckin->Destination->name,
@@ -191,23 +188,20 @@ class FrontendStatusController extends Controller
     /**
      * @param $status
      *
-     * @return TrainStation|null
      * @deprecated when vue is implemented
      */
     public static function nextStation(&$status): ?TrainStation {
         if ($status->trainCheckin->HafasTrip->stopoversNEW->count() > 0) {
             return $status->trainCheckin->HafasTrip->stopoversNEW
-                ->filter(function($stopover) {
-                    return $stopover->arrival->isFuture();
-                })->sortBy('arrival')
+                ->filter(fn($stopover) => $stopover->arrival->isFuture())->sortBy('arrival')
                 ->first()?->trainStation;
         }
 
-        $stops         = json_decode($status->trainCheckin->HafasTrip->stopovers);
-        $nextStopIndex = count($stops) - 1;
+        $stops         = json_decode($status->trainCheckin->HafasTrip->stopovers, null, 512, JSON_THROW_ON_ERROR);
+        $nextStopIndex = (is_countable($stops) ? count($stops) : 0) - 1;
 
         // Wir rollen die Reise von hinten auf, damit der nächste Stop als letztes vorkommt.
-        for ($i = count($stops) - 1; $i > 0; $i--) {
+        for ($i = (is_countable($stops) ? count($stops) : 0) - 1; $i > 0; $i--) {
             $arrival = Carbon::parse($stops[$i]->arrival);
             if ($arrival != null && $arrival->isFuture()) {
                 $nextStopIndex = $i;

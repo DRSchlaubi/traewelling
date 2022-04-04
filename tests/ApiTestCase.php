@@ -26,7 +26,7 @@ abstract class ApiTestCase extends TestCase
         ];
 
         $response    = $this->json('POST', route('api.v0.auth.login'), $data);
-        $this->token = json_decode($response->getContent())->token;
+        $this->token = json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->token;
 
         //Accept the privacy policy
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])

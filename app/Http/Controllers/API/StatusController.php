@@ -122,7 +122,7 @@ class StatusController extends ResponseController
         try {
             StatusBackend::createLike(Auth::user(), $status);
             return $this->sendResponse(true);
-        } catch (StatusAlreadyLikedException $e) {
+        } catch (StatusAlreadyLikedException) {
             return $this->sendError("false", 400);
         }
 

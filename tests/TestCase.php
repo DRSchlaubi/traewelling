@@ -26,6 +26,10 @@ use Tests\Feature\CheckinTest;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * @var mixed
+     */
+    public $user;
     use CreatesApplication;
 
     protected function setUp(): void {
@@ -43,7 +47,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * @var string Hafas is weird and it's trip ids are shorter the first 9 days of the month.
      */
-    private static $HAFAS_ID_DATE = 'jmY';
+    private static string $HAFAS_ID_DATE = 'jmY';
 
     /**
      * Check if the given Hafas Trip was correct. Can be used from several test functions.
@@ -95,13 +99,9 @@ abstract class TestCase extends BaseTestCase
     /**
      * This is mostly copied from Checkin Test and exactly copied from ExportTripsTest.
      *
-     * @param string           $stationName
-     * @param Carbon           $timestamp
      * @param User|null        $user
      * @param bool|null        $forEvent
-     * @param StatusVisibility $statusVisibility
      *
-     * @return array|null
      * @throws TrainCheckinAlreadyExistException|NotConnectedException
      */
     #[ArrayShape([
@@ -121,6 +121,8 @@ abstract class TestCase extends BaseTestCase
         bool             $forEvent = null,
         StatusVisibility $statusVisibility = StatusVisibility::PUBLIC
     ): ?array {
+        $trainStationboard = [];
+        $trip              = [];
         if ($user === null) {
             $user = $this->user;
         }
@@ -140,9 +142,9 @@ abstract class TestCase extends BaseTestCase
 
         // Second: We don't like broken or cancelled trains.
         $i = 0;
-        while ((isset($trainStationboard['departures'][$i]->cancelled)
+        while ((property_exists($trainStationboard['departures'][$i], 'cancelled') && $trainStationboard['departures'][$i]->cancelled !== null
                 && $trainStationboard['departures'][$i]->cancelled)
-               || count($trainStationboard['departures'][$i]->remarks) != 0) {
+               || (is_countable($trainStationboard['departures'][$i]->remarks) ? count($trainStationboard['departures'][$i]->remarks) : 0) != 0) {
             $i++;
             if ($i == $countDepartures) {
                 $this->markTestSkipped("Unable to find unbroken train. Is it stormy in $stationName?");

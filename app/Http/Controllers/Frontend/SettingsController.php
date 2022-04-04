@@ -102,9 +102,7 @@ class SettingsController extends Controller
     /**
      * Approve a follow request
      *
-     * @param Request $request
      *
-     * @return RedirectResponse
      * @throws AlreadyFollowingException
      */
     public function approveFollower(Request $request): RedirectResponse {
@@ -130,9 +128,7 @@ class SettingsController extends Controller
     /**
      * Reject a follow request
      *
-     * @param Request $request
      *
-     * @return RedirectResponse
      */
     public function rejectFollower(Request $request): RedirectResponse {
         $validated = $request->validate([
@@ -147,7 +143,7 @@ class SettingsController extends Controller
             abort(404);
         }
 
-        if ($approval) {
+        if ($approval !== null) {
             return back()->with('success', __('settings.request.reject-success'));
         }
         return back()->with('danger', __('messages.exception.general'));

@@ -18,15 +18,12 @@ class FollowRequestIssued extends Notification
 {
     use Queueable;
 
-    public FollowRequest $followRequest;
-
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(FollowRequest $followRequest = null) {
-        $this->followRequest = $followRequest;
+    public function __construct(public FollowRequest $followRequest = null) {
     }
 
     /** @deprecated will be handled in frontend */
@@ -64,7 +61,7 @@ class FollowRequestIssued extends Notification
         try {
             $followRequest = FollowRequest::findOrFail($data['follow_id']);
             $sender        = User::findOrFail($followRequest->user_id);
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             // The follow request doesn't exist anymore or the user doesn't exist anymore
             throw new ShouldDeleteNotificationException();
         }
@@ -90,8 +87,6 @@ class FollowRequestIssued extends Notification
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array
      */
     public function via(): array {
         return ['database'];
@@ -99,8 +94,6 @@ class FollowRequestIssued extends Notification
 
     /**
      * Get the array representation of the notification.
-     *
-     * @return array
      */
     #[ArrayShape(['follow_id' => "mixed"])]
     public function toArray(): array {

@@ -17,9 +17,7 @@ class MastodonController extends Controller
     /**
      * Redirects to login-provider authentication
      *
-     * @param Request $request
      *
-     * @return SympfonyRedirectResponse|RedirectResponse
      */
     public function redirect(Request $request): SympfonyRedirectResponse|RedirectResponse {
         $request->request->set('domain', MastodonBackend::formatDomain($request->input('domain') ?? ''));
@@ -53,8 +51,6 @@ class MastodonController extends Controller
     /**
      * handles callback of login-provider with socialite.
      * Calls createUser
-     *
-     * @return RedirectResponse
      */
     public function callback(): RedirectResponse {
         $domain = session('mastodon_domain');

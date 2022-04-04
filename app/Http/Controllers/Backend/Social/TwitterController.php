@@ -17,9 +17,7 @@ use Laravel\Socialite\Contracts\User as SocialiteUser;
 abstract class TwitterController extends Controller
 {
     /**
-     * @param User $user
      *
-     * @return TwitterOAuth
      * @throws InvalidArgumentException
      * @throws NotConnectedException
      */
@@ -41,7 +39,6 @@ abstract class TwitterController extends Controller
      * If logged in, the user will have the login-provider added.
      * If a user with corresponding login-provider already exists, it will be returned.
      *
-     * @param SocialiteUser $socialiteUser
      *
      * @return User model
      */
@@ -78,8 +75,6 @@ abstract class TwitterController extends Controller
     }
 
     /**
-     * @param Status $status
-     *
      * @throws NotConnectedException
      */
     public static function postStatus(Status $status): void {

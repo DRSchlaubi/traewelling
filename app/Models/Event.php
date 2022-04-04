@@ -20,7 +20,6 @@ class Event extends Model
     ];
 
     /**
-     * @return HasOne
      * @todo rename to ->trainStation when variable is renamed in database to train_station_id
      */
     public function station(): HasOne {
@@ -45,7 +44,6 @@ class Event extends Model
     }
 
     /**
-     * @return TrainStation
      * @deprecated Use ->station relationship instead
      */
     public function getTrainstation(): TrainStation {

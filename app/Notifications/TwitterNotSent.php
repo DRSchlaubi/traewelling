@@ -16,12 +16,7 @@ class TwitterNotSent extends Notification
 {
     use Queueable;
 
-    public string $error;
-    public Status $status;
-
-    public function __construct(string $error, Status $status) {
-        $this->error  = $error;
-        $this->status = $status;
+    public function __construct(public string $error, public Status $status) {
     }
 
     /** @deprecated will be handled in frontend */
@@ -48,9 +43,6 @@ class TwitterNotSent extends Notification
     }
 
     /**
-     * @param DatabaseNotification $notification
-     *
-     * @return stdClass
      * @throws ShouldDeleteNotificationException
      */
     public static function detail(DatabaseNotification $notification): stdClass {

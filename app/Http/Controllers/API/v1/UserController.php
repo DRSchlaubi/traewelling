@@ -36,9 +36,7 @@ class UserController extends ResponseController
     /**
      * Returns paginated statuses for user
      *
-     * @param string $username
      *
-     * @return AnonymousResourceCollection
      */
     public function statuses(string $username): AnonymousResourceCollection {
         $user = User::where('username', 'like', $username)->firstOrFail();
@@ -57,9 +55,7 @@ class UserController extends ResponseController
     /**
      * Returns Model of user
      *
-     * @param string $username
      *
-     * @return UserResource
      * @todo Maybe put this into another method?
      */
     public function show(string $username): UserResource {

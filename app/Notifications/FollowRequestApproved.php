@@ -17,6 +17,10 @@ use stdClass;
 
 class FollowRequestApproved extends Notification
 {
+    /**
+     * @var \App\Models\Follow|mixed|null
+     */
+    public $follow;
     use Queueable;
 
     public FollowRequest $followRequest;
@@ -88,8 +92,6 @@ class FollowRequestApproved extends Notification
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array
      */
     public function via(): array {
         return ['database'];
@@ -97,8 +99,6 @@ class FollowRequestApproved extends Notification
 
     /**
      * Get the array representation of the notification.
-     *
-     * @return array
      */
     #[ArrayShape(['follow_id' => "mixed"])]
     public function toArray(): array {

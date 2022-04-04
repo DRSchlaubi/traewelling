@@ -13,7 +13,6 @@ abstract class TicketController extends Controller
     /**
      * Creates a ticket in the help desk.
      *
-     * @param User $user
      * @param      $subject
      * @param      $message
      *

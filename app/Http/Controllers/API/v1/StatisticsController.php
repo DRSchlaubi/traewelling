@@ -19,42 +19,23 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StatisticsController extends ResponseController
 {
-    /**
-     * @return AnonymousResourceCollection
-     */
     public function leaderboard(): AnonymousResourceCollection {
         return LeaderboardUserResource::collection(LeaderboardBackend::getLeaderboard());
     }
 
-    /**
-     * @return AnonymousResourceCollection
-     */
     public function leaderboardByDistance(): AnonymousResourceCollection {
         return LeaderboardUserResource::collection(LeaderboardBackend::getLeaderboard(orderBy: 'distance'));
     }
 
-    /**
-     * @return AnonymousResourceCollection
-     */
     public function leaderboardFriends(): AnonymousResourceCollection {
         return LeaderboardUserResource::collection(LeaderboardBackend::getLeaderboard(onlyFollowings: true));
     }
 
-    /**
-     * @param string $date
-     *
-     * @return AnonymousResourceCollection
-     */
     public function leaderboardForMonth(string $date): AnonymousResourceCollection {
         $date = Carbon::parse($date);
         return LeaderboardUserResource::collection(LeaderboardBackend::getMonthlyLeaderboard(date: $date));
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
     public function getPersonalStatistics(Request $request): JsonResponse {
         $validated = $request->validate([
                                             'from'  => ['nullable', 'date'],

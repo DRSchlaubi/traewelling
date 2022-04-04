@@ -29,10 +29,7 @@ use Illuminate\Validation\Rules\Enum;
 class TransportController extends ResponseController
 {
     /**
-     * @param Request $request
-     * @param string  $name
      *
-     * @return JsonResponse
      * @see All slashes (as well as encoded to %2F) in $name need to be replaced, preferrably by a spache (%20)
      */
     public function departures(Request $request, string $name): JsonResponse {
@@ -161,9 +158,6 @@ class TransportController extends ResponseController
     }
 
     /**
-     * @param string $stationName
-     *
-     * @return JsonResponse
      * @see All slashes (as well as encoded to %2F) in $name need to be replaced, preferrably by a spache (%20)
      */
     public function setHome(string $stationName): JsonResponse {
@@ -186,9 +180,6 @@ class TransportController extends ResponseController
     }
 
     /**
-     * @param string $query
-     *
-     * @return JsonResponse
      * @see All slashes (as well as encoded to %2F) in $query need to be replaced, preferrably by a spache (%20)
      */
     public function getTrainStationAutocomplete(string $query): JsonResponse {

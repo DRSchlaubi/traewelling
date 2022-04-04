@@ -21,8 +21,6 @@ class EventController extends ResponseController
 {
     /**
      * Returns model of Event
-     * @param string $slug
-     * @return EventResource
      */
     public function show(string $slug): EventResource {
         $event = EventBackend::getBySlug($slug);
@@ -31,8 +29,6 @@ class EventController extends ResponseController
 
     /**
      * Returns paginated statuses for user
-     * @param string $slug
-     * @return AnonymousResourceCollection
      */
     public static function statuses(string $slug): AnonymousResourceCollection {
         $event = EventBackend::getBySlug($slug);
@@ -47,11 +43,6 @@ class EventController extends ResponseController
         return EventResource::collection($events);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return JsonResponse
-     */
     public function suggest(Request $request): JsonResponse {
         $validated = $request->validate([
                                             'name'  => ['required', 'max:255'],

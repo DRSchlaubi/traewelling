@@ -63,9 +63,7 @@ class UserController extends Controller
     }
 
     /**
-     * @param User $user
      *
-     * @return LengthAwarePaginator|null
      * @throws AuthorizationException
      * @api v1
      * @frontend
@@ -97,10 +95,7 @@ class UserController extends Controller
     }
 
     /**
-     * @param User $user
-     * @param User $userToFollow
      *
-     * @return User
      * @throws AlreadyFollowingException
      * @throws IdenticalModelException
      * @api v1
@@ -136,15 +131,10 @@ class UserController extends Controller
     }
 
     //Save Changes on Settings-Page
-
     /**
      * Add $userToFollow to $user's Followings
      *
-     * @param User $user
-     * @param User $userToFollow
-     * @param bool $isApprovedRequest
      *
-     * @return bool
      * @throws AlreadyFollowingException
      * @deprecated
      */
@@ -179,10 +169,7 @@ class UserController extends Controller
     /**
      * Returnes whether $user follows $userFollow
      *
-     * @param User $user
-     * @param User $userFollow
      *
-     * @return bool
      * @deprecated Following-Attribute
      */
     private static function isFollowing(User $user, User $userFollow): bool {
@@ -192,10 +179,8 @@ class UserController extends Controller
     /**
      * Add $userToFollow to $user's FollowerRequests
      *
-     * @param User $user
      * @param User $userToFollow The user of the person who is followed
      *
-     * @return bool
      * @throws AlreadyFollowingException
      * @deprecated
      */
@@ -216,10 +201,8 @@ class UserController extends Controller
     /**
      * Remove $userToUnfollow from $user's Follower
      *
-     * @param User $user
      * @param User $userToUnfollow The user of the person who was followed and now isn't
      *
-     * @return bool
      */
     public static function destroyFollow(User $user, User $userToUnfollow): bool {
         if (!self::isFollowing($user, $userToUnfollow)) {
@@ -255,9 +238,6 @@ class UserController extends Controller
     }
 
     /**
-     * @param string|null $searchQuery
-     *
-     * @return Paginator
      * @deprecated is now in backend/usercontroller for api v1
      */
     public static function searchUser(?string $searchQuery): Paginator {
@@ -299,9 +279,7 @@ class UserController extends Controller
     /**
      * delete a specific session for user
      *
-     * @param Request $request
      *
-     * @return RedirectResponse
      */
     public function deleteToken(Request $request): RedirectResponse {
         $validated = $request->validate([

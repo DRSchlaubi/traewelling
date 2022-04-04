@@ -13,10 +13,8 @@ class SemiGuest extends Middleware
      * Handle an incoming request.
      *
      * @param Request $request
-     * @param Closure $next
      * @param mixed   ...$guards
      *
-     * @return mixed
      */
     public function handle($request, Closure $next, ...$guards): mixed {
         try {

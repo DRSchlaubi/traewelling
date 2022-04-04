@@ -14,8 +14,6 @@ class NotificationController extends ResponseController
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return JsonResponse
      */
     public function index(): JsonResponse {
         $notificationResponse = NotificationBackend::latest();
@@ -42,7 +40,6 @@ class NotificationController extends ResponseController
      * @return Response
      */
     public function destroy($notificationID) {
-        $deleteNotificationResponse = NotificationBackend::destroy($notificationID);
-        return $deleteNotificationResponse;
+        return NotificationBackend::destroy($notificationID);
     }
 }

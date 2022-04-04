@@ -130,7 +130,7 @@ class ApiUserTest extends ApiTestCase
                                         'train_distance',
                                         'train_duration',
                                         'points']);
-        $this->assertTrue(json_decode($response->getContent())->username == 'Gertrud123');
+        $this->assertTrue(json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->username == 'Gertrud123');
 
 
     }
@@ -143,7 +143,7 @@ class ApiUserTest extends ApiTestCase
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
                          ->get(route('api.v0.user.active', ['username' => 'Gertrud123']));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
         //Somehow this throws an error even though the structure is the same.
         $response->assertJsonStructure([
                                            'id',
@@ -208,7 +208,7 @@ class ApiUserTest extends ApiTestCase
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
                          ->get(route('api.v0.user.leaderboard'));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
         $response->assertJsonStructure([
                                            "users",
                                            "friends",
@@ -226,7 +226,7 @@ class ApiUserTest extends ApiTestCase
                                         'Accept'        => 'application/json'])
                          ->get(route('api.v0.user.search', 'gertru'));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
         $response->assertJsonStructure(['current_page',
                                         'data' => [[
                                                        "id",
@@ -251,7 +251,7 @@ class ApiUserTest extends ApiTestCase
                          ->get(route('api.v0.user.search',
                                      'sdfklghbqeörgjaösrjgäIERGKJAEFÖRGJSDÖFJHBÜÄAJRÄÜG'));
         $response->assertOk();
-        $this->assertFalse(empty(json_decode($response->getContent(), true)));
+        $this->assertFalse(empty(json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)));
         $response->assertJsonStructure(['current_page',
                                         'data' => [],
                                         'first_page_url',
@@ -274,7 +274,7 @@ class ApiUserTest extends ApiTestCase
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
                          ->json('GET', route('api.v0.user', ['username' => 'gertrud123']));
         $response->assertOk();
-        $this->assertTrue(json_decode($response->getContent())->statuses !== null);
+        $this->assertTrue(json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->statuses !== null);
 
 
         //set Gertrud as private profile and check again if status are not null,
@@ -285,7 +285,7 @@ class ApiUserTest extends ApiTestCase
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
                          ->json('GET', route('api.v0.user', ['username' => 'gertrud123']));
         $response->assertOk();
-        $this->assertTrue(json_decode($response->getContent())->statuses !== null);
+        $this->assertTrue(json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->statuses !== null);
 
         //test global dashboard. User Gertrud should not be seen, because it is a private profile
         $globalDashboard = DashboardController::getGlobalDashboard($gertrud);
@@ -299,7 +299,7 @@ class ApiUserTest extends ApiTestCase
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
                          ->json('GET', route('api.v0.user', ['username' => 'Alice123']));
         $response->assertOk();
-        $this->assertTrue(json_decode($response->getContent())->statuses == null);
+        $this->assertTrue(json_decode($response->getContent(), null, 512, JSON_THROW_ON_ERROR)->statuses == null);
 
     }
 }

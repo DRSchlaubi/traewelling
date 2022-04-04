@@ -14,7 +14,7 @@ class PrivacyHelperTest extends TestCase
     protected function setUp(): void {
         //Don't setUp() on TestCase, because the seeder will not work
         // -> this test class doesn't use database, because it's a unit test.
-        BaseTestCase::setUp();
+        (new BaseTestCase())->setUp();
     }
 
     public function testIPv4Masking(): void {

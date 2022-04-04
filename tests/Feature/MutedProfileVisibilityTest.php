@@ -216,7 +216,6 @@ class MutedProfileVisibilityTest extends ApiTestCase
      * Bob is a muted profile, followed by Gertrud. Alice is a seperate user, following nobody.
      * Bob has one check in.
      *
-     * @return stdClass
      * @throws \App\Exceptions\AlreadyFollowingException
      */
     public function createAliceBobAndGertrud(): stdClass {

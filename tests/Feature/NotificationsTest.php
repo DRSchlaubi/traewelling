@@ -151,7 +151,7 @@ class NotificationsTest extends TestCase
         $readReq->assertStatus(201); // Created
 
         // THEN: the notification is read
-        $notificationPart2 = json_decode($readReq->content());
+        $notificationPart2 = json_decode($readReq->content(), null, 512, JSON_THROW_ON_ERROR);
         $this->assertFalse($notificationPart2->read_at == null);
 
         // WHEN: toggleReadState is called again
@@ -160,7 +160,7 @@ class NotificationsTest extends TestCase
         $unreadReq->assertStatus(202); // Created
 
         // THEN: the notification is marked as unread again
-        $notificationPart3 = json_decode($unreadReq->content());
+        $notificationPart3 = json_decode($unreadReq->content(), null, 512, JSON_THROW_ON_ERROR);
         $this->assertTrue($notificationPart3->read_at == null);
     }
 

@@ -13,12 +13,9 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
-     * @param int         $stationId
-     * @param array       $array
      * @param Carbon|null $departure
      * @param Carbon|null $arrival
      *
-     * @return int|null
      * @deprecated This function is only used in TransportController::TrainTrip which is
      *             deprecated and replaced with other functions
      */
