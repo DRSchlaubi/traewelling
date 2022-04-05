@@ -4,7 +4,7 @@
 
 import Vue from "vue";
 import VueRouter from "vue-router";
-import {router} from "./routes";
+import router from "./router";
 import App from "../components/App";
 import moment from "moment";
 import Lang from "lang.js";
@@ -12,13 +12,10 @@ import {i18nStrings} from "./translations";
 import axios from "axios";
 import VueAxios from "vue-axios";
 import VueLocalStorage from "vue-localstorage";
-import auth from "@websanova/vue-auth/dist/v2/vue-auth.esm.js";
-import driverAuthBearer from "@websanova/vue-auth/dist/drivers/auth/bearer.esm.js";
-import driverHttpAxios from "@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js";
-import driverRouterVueRouter from "@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js";
 import VueMeta from "vue-meta";
 import {Notyf} from "notyf";
 import "notyf/notyf.min.css";
+import store from "./store";
 
 Vue.config.productionTip = false;
 
@@ -47,38 +44,38 @@ Vue.prototype.notyf = new Notyf({
     position: {x: "center", y: "top"},
     dismissible: true
 });
-// Set Vue router
-Vue.router          = router;
+// Set Vue routerIndex
+Vue.router = router;
 Vue.use(VueRouter);
 
-axios.defaults.baseURL = "/api/v1";
 Vue.use(VueAxios, axios);
 
-Vue.use(auth, {
-    plugins: {
-        http: Vue.axios, // Axios
-        // http: Vue.http, // Vue Resource
-        router: Vue.router,
-    },
-    drivers: {
-        auth: driverAuthBearer,
-        http: driverHttpAxios,
-        router: driverRouterVueRouter
-    },
-    options: {
-        rolesKey: "type",
-        notFoundRedirect: {name: "dashboard"},
-        forbiddenRedirect: {name: "dashboard"}
-    },
-    tokenDefaultName: "laravel-vue-spa",
-    tokenStore: ["localStorage"],
-    // rolesVar: "role",
-    registerData: {url: "auth/register", method: "POST", redirect: "/login"},
-    loginData: {url: "auth/login", method: "POST", redirect: "/dashboard", fetchUser: false},
-    logoutData: {url: "auth/logout", method: "POST", redirect: "/", makeRequest: true},
-    fetchData: {url: "auth/user", method: "GET", enabled: true},
-    // refreshData: {url: "auth/refresh", method: "GET", enabled: true, interval: 30}
-});
+// Vue.use(auth, {
+//     plugins: {
+//         http: Vue.axios, // Axios
+//         // http: Vue.http, // Vue Resource
+//         routerIndex: Vue.routerIndex,
+//     },
+//     drivers: {
+//         auth: driverAuthBearer,
+//         http: driverHttpAxios,
+//         routerIndex: driverRouterVueRouter
+//     },
+//     options: {
+//         rolesKey: "type",
+//         notFoundRedirect: {name: "dashboard"},
+//         forbiddenRedirect: {name: "dashboard"}
+//     },
+//     tokenDefaultName: "laravel-vue-spa",
+//     tokenStore: ["localStorage"],
+//     // rolesVar: "role",
+//     registerData: {url: "auth/register", method: "POST", redirect: "/login"},
+//     loginData: {url: "auth/login", method: "POST", redirect: "/dashboard", fetchUser: false},
+//     logoutData: {url: "auth/logout", method: "POST", redirect: "/", makeRequest: true},
+//     fetchData: {url: "auth/user", method: "GET", enabled: true},
+//     // refreshData: {url: "auth/refresh", method: "GET", enabled: true, interval: 30}
+// });
+
 
 Vue.use(VueMeta, {
     tagIDKeyName: "vmid",
@@ -89,6 +86,23 @@ new Vue({
     el: "#app",
     components: {App},
     router,
+    store,
+    created() {
+        const userInfo = localStorage.getItem("user");
+        if (userInfo) {
+            const userData = JSON.parse(userInfo);
+            this.$store.commit("setUserData", userData);
+        }
+        axios.interceptors.response.use(
+            response => response,
+            error => {
+                if (error.response.status === 401) {
+                    this.$store.dispatch("logout");
+                }
+                return Promise.reject(error);
+            }
+        );
+    }
 });
 
 Vue.mixin({

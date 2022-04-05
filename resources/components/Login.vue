@@ -1,5 +1,5 @@
 <template>
-    <form class="card-body" method="post" @submit.prevent="authenticate">
+    <form class="card-body" method="post" @submit.prevent="login">
         <h2 class="card-title">{{ i18n.get("_.user.login") }}</h2>
         <div class="d-flex flex-row align-items-center justify-content-center">
             <button aria-label="Twitter" class="btn btn-primary btn-floating mx-1" type="button"> <!--ToDo i18n?-->
@@ -49,6 +49,18 @@ export default {
     }, mounted() {
         //
     }, methods: {
+        login() {
+            let redirect = this.$auth.redirect();
+            this.$store
+            .dispatch('login', {
+                login: this.login,
+                password: this.password
+            })
+            .then(this.$router.push({name: redirect ? redirect.from.name : "dashboard"}))
+            .catch((err) => {
+                this.notyf.error(err);
+            });
+        },
         authenticate() {
             // get the redirect object
             let redirect = this.$auth.redirect();
