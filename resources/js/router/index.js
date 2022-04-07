@@ -1,5 +1,4 @@
 import Vue from "vue";
-import VueRouter from "vue-router";
 import ActiveStatuses from "../../components/views/ActiveStatuses";
 import SingleStatus from "../../components/views/SingleStatus";
 import Profile from "../../components/views/Profile";
@@ -20,8 +19,6 @@ import Support from "../../components/views/Support";
 import Events from "../../components/views/Events";
 import PrivacyPolicy from "../../components/views/PrivacyPolicy";
 import LegalNotice from "../../components/views/LegalNotice";
-
-Vue.use(VueRouter);
 
 const routes =  [
     {

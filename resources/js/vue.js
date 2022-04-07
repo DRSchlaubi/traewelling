@@ -3,14 +3,12 @@
  */
 
 import Vue from "vue";
-import VueRouter from "vue-router";
 import router from "./router";
 import App from "../components/App";
 import moment from "moment";
 import Lang from "lang.js";
 import {i18nStrings} from "./translations";
 import axios from "axios";
-import VueAxios from "vue-axios";
 import VueLocalStorage from "vue-localstorage";
 import VueMeta from "vue-meta";
 import {Notyf} from "notyf";
@@ -44,37 +42,6 @@ Vue.prototype.notyf = new Notyf({
     position: {x: "center", y: "top"},
     dismissible: true
 });
-// Set Vue routerIndex
-Vue.router = router;
-Vue.use(VueRouter);
-
-Vue.use(VueAxios, axios);
-
-// Vue.use(auth, {
-//     plugins: {
-//         http: Vue.axios, // Axios
-//         // http: Vue.http, // Vue Resource
-//         routerIndex: Vue.routerIndex,
-//     },
-//     drivers: {
-//         auth: driverAuthBearer,
-//         http: driverHttpAxios,
-//         routerIndex: driverRouterVueRouter
-//     },
-//     options: {
-//         rolesKey: "type",
-//         notFoundRedirect: {name: "dashboard"},
-//         forbiddenRedirect: {name: "dashboard"}
-//     },
-//     tokenDefaultName: "laravel-vue-spa",
-//     tokenStore: ["localStorage"],
-//     // rolesVar: "role",
-//     registerData: {url: "auth/register", method: "POST", redirect: "/login"},
-//     loginData: {url: "auth/login", method: "POST", redirect: "/dashboard", fetchUser: false},
-//     logoutData: {url: "auth/logout", method: "POST", redirect: "/", makeRequest: true},
-//     fetchData: {url: "auth/user", method: "GET", enabled: true},
-//     // refreshData: {url: "auth/refresh", method: "GET", enabled: true, interval: 30}
-// });
 
 
 Vue.use(VueMeta, {
@@ -83,8 +50,6 @@ Vue.use(VueMeta, {
 });
 
 new Vue({
-    el: "#app",
-    components: {App},
     router,
     store,
     created() {
@@ -102,8 +67,9 @@ new Vue({
                 return Promise.reject(error);
             }
         );
-    }
-});
+    },
+    render: h => h(App)
+}).$mount("#app");
 
 Vue.mixin({
     methods: {
