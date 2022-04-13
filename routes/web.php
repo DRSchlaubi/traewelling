@@ -39,7 +39,8 @@ require_once realpath(__DIR__) . '/web/admin.php';
 Route::get('/@{username}/picture', [ProfilePictureController::class, 'generateProfilePicture'])
      ->name('profile.picture');
 
-Route::view('/beta/{view?/}', 'landing')->where('view', '(.*)')->name('landing');
+//ToDo: remove this route, since it's only a workaround to use vue directly
+Route::view('/{view?/}', 'landing')->where('view', '^(?=.*?)((?!api).)*$')->name('landing');
 
 Route::domain('beta.' . parse_url(url('/'), PHP_URL_HOST))->group(function() {
     $path = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http' . '://' . parse_url(url('/'), PHP_URL_HOST) . '/beta';
