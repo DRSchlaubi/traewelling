@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\Hafas\StationboardDeparture;
 use App\Enum\TravelType;
 use App\Exceptions\HafasException;
 use App\Exceptions\StationNotOnTripException;
@@ -79,9 +80,7 @@ class TransportController extends Controller
             station: $station,
             when:    $when,
             type:    $travelType
-        )->sortBy(function($departure) {
-            return $departure->when ?? $departure->plannedWhen;
-        });
+        )->sortBy(fn(StationboardDeparture $departure) => $departure->sortKey());
 
         return ['station' => $station, 'departures' => $departures->values(), 'times' => $times];
     }

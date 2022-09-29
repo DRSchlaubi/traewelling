@@ -95,16 +95,12 @@ class BackendCheckinTest extends TestCase
      * @see    https://github.com/Traewelling/traewelling/issues/37
      */
     public function testCheckinAtBerlinRingbahnRollingOverSuedkreuz(): void {
-        if (Carbon::now()->isBefore('2022-04-19 02:00:00')) {
-            $this->markTestSkipped('There are currently construction works in Tempelhof. Skipping test. We should work on non real-data tests...');
-        }
-
         // First: Get a train that's fine for our stuff
         // The 10:00 train actually quits at Südkreuz, but the 10:05 does not.
         $station    = HafasController::getTrainStation(8089110);
         $departures = HafasController::getDepartures(
             station: $station,
-            when:    Carbon::parse('next monday 10:00 am'),
+            when:    Carbon::parse('next wednesday 10:00 am'),
         );
         $rawTrip    = $departures->where('line.name', 'S 42')
                                  ->first();

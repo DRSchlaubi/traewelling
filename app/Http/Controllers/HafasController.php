@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\Hafas\StationboardDeparture;
 use App\Enum\HafasTravelType as HTT;
 use App\Enum\TravelType;
 use App\Exceptions\HafasException;
@@ -184,28 +185,17 @@ abstract class HafasController extends Controller
             ]);
 
             $data = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
+            $departures = collect($data)->mapInto(StationboardDeparture::class);
 
-            //First fetch all stations in one request
-            $trainStationPayload = [];
-            foreach ($data as $departure) {
-                if (in_array($departure->stop->id, array_column($trainStationPayload, 'ibnr'), true)) {
-                    continue;
-                }
-                $trainStationPayload[] = [
-                    'ibnr'      => $departure->stop->id,
-                    'name'      => $departure->stop->name,
-                    'latitude'  => $departure->stop?->location?->latitude,
-                    'longitude' => $departure->stop?->location?->longitude,
-                ];
-            }
+            $trainStationPayload = $departures
+                ->map(fn(StationboardDeparture $item) => $item->getTrainStationModel())
+                ->unique("ibnr")
+                ->all();
+
             $trainStations = self::upsertTrainStations($trainStationPayload);
-
-            //Then match the stations to the departures
-            $departures = collect();
-            foreach ($data as $departure) {
-                $departure->station = $trainStations->where('ibnr', $departure->stop->id)->first();
-                $departures->push($departure);
-            }
+            $departures->each(function(StationboardDeparture $item) use ($trainStations) {
+                return $item->setTrainStationModelFromSet($trainStations);
+            });
 
             return $departures;
         } catch (GuzzleException|JsonException $exception) {
