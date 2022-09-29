@@ -41,6 +41,13 @@ class StationboardDeparture
         $this->remarks         = $dataItem->remarks;
         $this->origin          = $dataItem->origin;
         $this->destination     = $dataItem->destination;
+
+        if ($this->direction === "Ring S41") {
+            $this->direction = __("stationboard.ringbahn.clockwise");
+        }
+        if ($this->direction === "Ring S42") {
+            $this->direction = __("stationboard.ringbahn.counterclockwise");
+        }
     }
 
     public function sortKey(): ?string {

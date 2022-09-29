@@ -423,6 +423,8 @@
     "stationboard.business.business.detail": "Dienstfahrten",
     "stationboard.business.commute": "Arbeitsweg",
     "stationboard.business.commute.detail": "Weg zwischen Wohnort und Arbeitsplatz",
+    "stationboard.ringbahn.clockwise": "Ringbahn 🔃 im Uhrzeigersinn",
+    "stationboard.ringbahn.counterclockwise": "Ringbahn 🔄 gegen den Uhrzeigersinn",
     "status.ogp-title": ":name's Reise mit Träwelling",
     "status.ogp-description": ":distancekm von :origin nach :destination in :linename.|:distancekm von :origin nach :destination in Linie :linename.",
     "status.visibility.0": "Öffentlich",
