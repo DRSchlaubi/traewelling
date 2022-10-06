@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\UserCheckedIn;
+use App\Listeners\PostStatusOnMastodon;
+use App\Listeners\PostStatusOnTwitter;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -13,9 +16,13 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        Registered::class => [
+        Registered::class    => [
             //SendEmailVerificationNotification::class,
         ],
+        UserCheckedIn::class => [
+            PostStatusOnTwitter::class,
+            PostStatusOnMastodon::class
+        ]
     ];
 
     /**
