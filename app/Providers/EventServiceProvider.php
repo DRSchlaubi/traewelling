@@ -129,9 +129,6 @@ class EventServiceProvider extends ServiceProvider
                 'error_message' => $event->errorMessage,
             ]);
         });
-        Event::listen(function(SocialiteWasCalled $event) {
-            logger("Socialite called!!");
-            $event->extendSocialite('zitadel', ZitadelProvider::class);
-        });
+        Event::listen(fn(SocialiteWasCalled $event) => $event->extendSocialite('zitadel', ZitadelProvider::class));
     }
 }
