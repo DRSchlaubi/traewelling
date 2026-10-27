@@ -76,7 +76,7 @@ Route::get('/changelog', [ChangelogController::class, 'renderChangelog'])
 
 Auth::routes(['verify' => true, 'register' => config('app.registration.enabled')]);
 
-Route::get('/auth/initiate', fn () => Socialite::driver('zitadel')->redirect())->name('auth.initiate');
+Route::get('/auth/initiate', fn () => Socialite::driver('zitadel')->with(['prompt' =>'select_account'])->redirect())->name('auth.initiate');
 Route::get('/auth/redirect/mastodon', [MastodonController::class, 'redirect']);
 Route::get('/callback/mastodon', [MastodonController::class, 'callback']);
 Route::get('/callback/zitadel', [ZitadelController::class, 'callback']);
