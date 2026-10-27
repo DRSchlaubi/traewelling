@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Socialite;
+use SocialiteProviders\Zitadel\Provider as ZitadelProvider;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
@@ -23,7 +26,10 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers, ThrottlesLogins;
+    use AuthenticatesUsers {
+        logout as protected traitLogout;
+    }
+    use ThrottlesLogins;
 
     /**
      * Where to redirect users after login.
@@ -35,15 +41,13 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('guest')->except('logout');
     }
 
-    public function login(Request $request): Response
-    {
+    public function login(Request $request): Response {
         $validator = Validator::make($request->all(), [
-            'login' => ['required', 'max:255'],
+            'login'    => ['required', 'max:255'],
             'password' => ['required', 'min:8'],
             'remember' => ['nullable'],
         ]);
@@ -69,14 +73,27 @@ class LoginController extends Controller
         $this->incrementLoginAttempts($request);
 
         return redirect()->route('login')
-            ->withInput()
-            ->withErrors([
-                'login_error' => __('error.login'),
-            ]);
+                         ->withInput()
+                         ->withErrors([
+                                          'login_error' => __('error.login'),
+                                      ]);
     }
 
-    public function username(): string
+    public function logout(Request $request): Response
     {
+        $this->traitLogout($request);
+        /** @var ZitadelProvider $zitadel */
+        $zitadel = Socialite::driver('zitadel');
+
+        $zitadelToken = (string) $request->session()->get('zitadel_token', '');
+        $logoutUrl = $zitadel->getLogoutUrl($zitadelToken);
+
+        $request->attributes->set('zitadel_logout_url', $logoutUrl);
+
+        return \response()->json(['logout_url' => $logoutUrl]);
+    }
+
+    public function username(): string {
         return 'login';
     }
 }

@@ -268,8 +268,9 @@ function logout() {
         },
         body: JSON.stringify({}),
     })
-        .then((response) => {
-            window.location.href = response.headers.get('Location') ?? '/';
+        .then(async (response) => {
+            const body = await response.json();
+            window.location.href = body.logout_url ?? '/';
         })
         .catch((error) => {
             console.error('Error logging out:', error);
