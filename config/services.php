@@ -50,4 +50,15 @@ return [
         'timeout' => env('BROUTER_TIMEOUT_SECONDS', 30),
         'endpoint_tolerance_meters' => env('BROUTER_ENDPOINT_TOLERANCE_METERS', 200),
     ],
+
+    'zitadel' => [
+        'client_id' => env('ZITADEL_CLIENT_ID'),
+        'client_secret' => env('ZITADEL_CLIENT_SECRET'),
+        'redirect' => env('ZITADEL_REDIRECT_URI'),
+        'base_url' => env('ZITADEL_BASE_URL'),
+        'post_login_url' => env('ZITADEL_POST_LOGIN_URL', '/dashboard'),
+        'organization_id' => env('ZITADEL_ORGANIZATION_ID'),                      // Optional
+        'project_id' => env('ZITADEL_PROJECT_ID'),                                // Optional
+        'post_logout_redirect_uri' => env('ZITADEL_POST_LOGOUT_REDIRECT_URI')     // Optional
+    ],
 ];

@@ -41,6 +41,7 @@ class SocialLoginProfile extends Model
         'user_id',
         'twitter_id',
         'mastodon_id', 'mastodon_username', 'mastodon_server', 'mastodon_token', 'mastodon_visibility',
+        'zitadel_id',
     ];
 
     protected $hidden = ['mastodon_server', 'mastodon_token'];
@@ -54,6 +55,7 @@ class SocialLoginProfile extends Model
         'mastodon_server' => 'integer',
         'mastodon_visibility' => MastodonVisibility::class,
         'mastodon_token' => 'encrypted',
+        'zitadel_id' => 'string',
     ];
 
     public function user(): BelongsTo

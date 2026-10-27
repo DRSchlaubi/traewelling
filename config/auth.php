@@ -68,8 +68,8 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
+        'zitadel' => [
+            'driver' => 'zitadel',
             'model' => User::class,
         ],
 
@@ -96,7 +96,7 @@ return [
 
     'passwords' => [
         'users' => [
-            'provider' => 'users',
+            'provider' => 'zitadel',
             'table' => 'password_resets',
             'expire' => 60,
         ],

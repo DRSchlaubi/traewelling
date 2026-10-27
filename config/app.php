@@ -65,8 +65,8 @@ use Illuminate\View\ViewServiceProvider;
 use Intervention\Image\Facades\Image;
 use Laravel\Passport\PassportServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\SocialiteServiceProvider;
 use Revolution\Mastodon\Facades\Mastodon;
+use SocialiteProviders\Manager\ServiceProvider as SocialiteServiceProvider;
 
 return [
 

@@ -43,6 +43,8 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Notifications\Events\NotificationSent;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Zitadel\Provider as ZitadelProvider;
 use Spatie\WebhookServer\Events\FinalWebhookCallFailedEvent;
 use Spatie\WebhookServer\Events\WebhookCallFailedEvent;
 use Spatie\WebhookServer\Events\WebhookCallSucceededEvent;
@@ -126,6 +128,10 @@ class EventServiceProvider extends ServiceProvider
                 'error_type' => $event->errorType,
                 'error_message' => $event->errorMessage,
             ]);
+        });
+        Event::listen(function(SocialiteWasCalled $event) {
+            logger("Socialite called!!");
+            $event->extendSocialite('zitadel', ZitadelProvider::class);
         });
     }
 }

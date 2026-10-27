@@ -5,9 +5,16 @@ namespace App\Http\Controllers\API\v1;
 use App\Http\Resources\UserAuthResource;
 use App\Providers\AuthServiceProvider;
 use App\Services\OAuth\TokenService;
+use Illuminate\Container\EntryNotFoundException;
+use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Laravel\Socialite\Socialite;
 use OpenApi\Attributes as OA;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use SocialiteProviders\Zitadel\Provider;
+use Symfony\Component\HttpFoundation\Response;
 
 #[OA\Schema(
     schema: 'BearerTokenResponse',
@@ -41,7 +48,7 @@ class AuthController extends Controller
             new OA\Response(response: 500, description: 'Error during revoke'),
         ],
     )]
-    public function logout(Request $request, TokenService $tokenService): JsonResponse
+    public function logout(Request $request, TokenService $tokenService): Response
     {
         $token = $tokenService->resolveCurrentToken($request->user());
         if ($token === null) {
@@ -50,7 +57,15 @@ class AuthController extends Controller
 
         $tokenService->revokeToken($token);
 
-        return $this->sendResponse();
+        /** @var Provider $zitadel */
+        $zitadel = Socialite::driver('zitadel');
+
+        try {
+            $idToken = session()->get('zitadel_token');
+        } catch (EntryNotFoundException|CircularDependencyException|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            $idToken = '';
+        }
+        return redirect()->away($zitadel->getLogoutUrl($idToken));
     }
 
     /**

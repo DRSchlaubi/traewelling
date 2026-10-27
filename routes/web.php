@@ -11,6 +11,7 @@
 |
 */
 
+use App\Http\Controllers\Backend\Social\ZitadelController;
 use App\Http\Controllers\Frontend\ChangelogController;
 use App\Http\Controllers\Frontend\EventController;
 use App\Http\Controllers\Frontend\IcsController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\FrontendUserController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Socialite;
 
 Route::prefix('admin')->group(base_path('routes/web/admin.php'));
 
@@ -74,8 +76,10 @@ Route::get('/changelog', [ChangelogController::class, 'renderChangelog'])
 
 Auth::routes(['verify' => true, 'register' => config('app.registration.enabled')]);
 
+Route::get('/auth/initiate', fn() => Socialite::driver('zitadel')->redirect());
 Route::get('/auth/redirect/mastodon', [MastodonController::class, 'redirect']);
 Route::get('/callback/mastodon', [MastodonController::class, 'callback']);
+Route::get('/callback/zitadel', [ZitadelController::class, 'callback']);
 
 Route::get('/status/{id}', [FrontendStatusController::class, 'getStatus'])
     ->whereNumber('id')
