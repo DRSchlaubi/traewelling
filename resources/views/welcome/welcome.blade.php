@@ -30,7 +30,7 @@
                                 </ul>
                             </div>
                             <div class="navbar-end hidden lg:flex">
-                                <a href="{{ route('register') }}">
+                                <a href="{{ route('auth.initiate') }}">
                                     <button
                                         class="btn md:mt-0 mt-4 btn-block btn-sm text-xs btn-outline normal-case hover:text-white hover:btn-primary">
                                         {{ __('welcome.get-on-board') }}
@@ -45,9 +45,9 @@
                                 <div class="hero-content flex-col lg:flex-row-reverse w-full lg:ps-28">
                                     <div class="lg:w-3/5">
                                         <h1 class="text-5xl text-slate-100 font-bold md:leading-none leading-tight mt-0">
-                                            <span class="sm:block md:inline">Hop in. </span>
-                                            <span class="sm:block md:inline">Check&nbsp;in. </span>
-                                            <span class="sm:block md:inline">#Träwelling.</span>
+                                            <span class="sm:block md:inline">Blubi. </span>
+                                            <span class="sm:block md:inline">Blubidiblub. </span>
+                                            <span class="sm:block md:inline">#BlubbBlubb.</span>
                                         </h1>
                                         <p class="py-2 text-xl text-slate-100 mt-4 pr-12">
                                             {{ __('welcome.header.track') }}
@@ -56,9 +56,6 @@
                                         <p class="py-2 text-xl text-slate-100 mt-4 pr-12">
                                             {{ __('welcome.header.open-source') }}
                                         </p>
-                                    </div>
-                                    <div class="w-full lg:w-2/5 rounded-box bg-base-200 p-6 max-w-md">
-                                        @include('welcome.partials.login')
                                     </div>
                                 </div>
                             </div>
@@ -204,7 +201,7 @@
                                     <h2 class="text-3xl text-center font-bold text-base-content">
                                         {{ __('welcome.get-on-board-now') }}
                                     </h2>
-                                    <a href="{{ route('register') }}">
+                                    <a href="{{ route('auth.initiate') }}">
                                         <button class="btn text-lg mt-16 px-12 btn-primary normal-case">
                                             {{ __('welcome.get-on-board') }}
                                         </button>
@@ -276,7 +273,7 @@
                             {{ __('user.login') }}
                         </button>
                     </a>
-                    <a href="{{ route('register') }}">
+                    <a href="{{ route('auth.initiate') }}">
                         <button
                             class="btn md:mt-0 mt-4 btn-block btn-sm text-xs btn-outline normal-case hover:text-white hover:btn-primary">
                             {{ __('welcome.get-on-board') }}
