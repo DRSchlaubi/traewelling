@@ -30,6 +30,12 @@ return [
     'default_auth_driver' => null,
 
     /*
+     * The database connection and table used to store activities.
+     */
+    'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION'),
+    'database_table_name' => 'activity_log',
+
+    /*
      * If set to true, the subject relationship on activities
      * will include soft deleted models.
      */

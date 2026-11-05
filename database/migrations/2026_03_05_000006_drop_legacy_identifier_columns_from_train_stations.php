@@ -11,9 +11,13 @@ return new class() extends Migration
     public function up(): void
     {
         Schema::table('train_stations', function (Blueprint $table): void {
+            if (Schema::hasIndex('train_stations', 'train_stations_ibnr_unique')) {
+                $table->dropUnique('train_stations_ibnr_unique');
+            }
+            if (Schema::hasIndex('train_stations', 'train_stations_wikidata_id_foreign')) {
+                $table->dropForeign('train_stations_wikidata_id_foreign');
+            }
             foreach ([
-                'train_stations_ibnr_unique',
-                'train_stations_wikidata_id_foreign',
                 'train_stations_wikidata_id_index',
                 'train_stations_rilidentifier_index',
                 'ifopt',

@@ -10,6 +10,10 @@ return new class() extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_mapprovider_check');
+        }
+
         Schema::table('users', static function (Blueprint $table) {
             $table->string('mapprovider')
                 ->default(MapProvider::OPEN_FREE_MAP->value)
@@ -24,6 +28,10 @@ return new class() extends Migration
         DB::table('users')
             ->where('mapprovider', MapProvider::OPEN_FREE_MAP->value)
             ->update(['mapprovider' => 'cargo']);
+
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_mapprovider_check');
+        }
 
         Schema::table('users', static function (Blueprint $table) {
             $table->enum('mapprovider', ['cargo', MapProvider::OPEN_RAILWAY_MAP->value])

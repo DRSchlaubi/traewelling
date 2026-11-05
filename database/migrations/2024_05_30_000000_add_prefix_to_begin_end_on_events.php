@@ -25,8 +25,8 @@ return new class() extends Migration
 
         // update existing records
         DB::table('events')->update([
-            'checkin_start' => DB::raw('begin'),
-            'checkin_end' => DB::raw('end'),
+            'checkin_start' => DB::raw(DB::getQueryGrammar()->wrap('begin')),
+            'checkin_end' => DB::raw(DB::getQueryGrammar()->wrap('end')),
         ]);
 
         // drop old columns (if no sqlite)
@@ -54,8 +54,8 @@ return new class() extends Migration
 
         // update existing records
         DB::table('events')->update([
-            'begin' => DB::raw('checkin_start'),
-            'end' => DB::raw('checkin_end'),
+            'begin' => DB::raw(DB::getQueryGrammar()->wrap('checkin_start')),
+            'end' => DB::raw(DB::getQueryGrammar()->wrap('checkin_end')),
         ]);
 
         // drop new columns (if no sqlite)

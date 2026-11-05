@@ -11,25 +11,36 @@ return new class() extends Migration
 {
     public function up(): void
     {
+        $driver = DB::connection()->getDriverName();
+
         // SQLite (used in tests) does not support JSON virtual columns — skip silently.
-        if (DB::connection()->getDriverName() === 'sqlite') {
+        if ($driver === 'sqlite') {
             return;
         }
 
-        // Laravel translates ->where('data->status->id', $id) to:
-        //   WHERE json_unquote(json_extract(`data`, '$."status"."id"')) = ?
-        //
-        // The virtual column uses the identical expression so MariaDB's optimizer
-        // automatically uses the composite index when that WHERE clause appears.
-        //
-        // Fixes DeleteStatusNotifications job (type IN [UserJoinedConnection, StatusLiked]),
-        // previously a full scan of ~200k rows, 980 calls/day, 1144s wasted.
-        DB::statement(
-            "ALTER TABLE `notifications`
-             ADD COLUMN `data_status_id` BIGINT UNSIGNED GENERATED ALWAYS AS (
-                 json_unquote(json_extract(`data`, '$.\"status\".\"id\"'))
-             ) VIRTUAL"
-        );
+        if ($driver === 'pgsql') {
+            DB::statement(
+                "ALTER TABLE notifications
+                 ADD COLUMN data_status_id BIGINT GENERATED ALWAYS AS (
+                    ((data::jsonb)->'status'->>'id')::BIGINT
+                 ) STORED"
+            );
+        } else {
+            // Laravel translates ->where('data->status->id', $id) to:
+            //   WHERE json_unquote(json_extract(`data`, '$."status"."id"')) = ?
+            //
+            // The virtual column uses the identical expression so MariaDB's optimizer
+            // automatically uses the composite index when that WHERE clause appears.
+            //
+            // Fixes DeleteStatusNotifications job (type IN [UserJoinedConnection, StatusLiked]),
+            // previously a full scan of ~200k rows, 980 calls/day, 1144s wasted.
+            DB::statement(
+                "ALTER TABLE `notifications`
+                 ADD COLUMN `data_status_id` BIGINT UNSIGNED GENERATED ALWAYS AS (
+                     json_unquote(json_extract(`data`, '$.\"status\".\"id\"'))
+                 ) VIRTUAL"
+            );
+        }
 
         Schema::table('notifications', function (Blueprint $table) {
             $table->index(['type', 'data_status_id'], 'notifications_type_data_status_id_index');

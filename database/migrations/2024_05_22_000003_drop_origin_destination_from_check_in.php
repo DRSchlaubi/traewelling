@@ -11,7 +11,7 @@ return new class() extends Migration
         Schema::table('train_checkins', static function (Blueprint $table) {
             $table->dropForeign(['origin']);
             $table->dropForeign(['destination']);
-            $table->dropIndex('user_trip_origin_departure');
+            $table->dropUnique('user_trip_origin_departure');
 
             $table->dropColumn('origin');
             $table->dropColumn('destination');

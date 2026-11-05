@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 class PrivacyPolicyRepository
 {
-    public function getPrivacyPolicyValidAt(CarbonInterface $validAt): PrivacyPolicy
+    public function getPrivacyPolicyValidAt(CarbonInterface $validAt): ?PrivacyPolicy
     {
         $cacheKey = 'privacy_policy.current.' . $validAt->format('Y-m-d-H');
 

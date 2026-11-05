@@ -12,11 +12,14 @@ return new class() extends Migration
         if (DB::getDriverName() !== 'sqlite') {
             // Remove duplicates, keeping the row with the lowest id per (type, identifier) pair.
             DB::statement('
-                DELETE si FROM station_identifiers si
-                INNER JOIN station_identifiers si2
-                    ON si.type = si2.type
-                    AND si.identifier = si2.identifier
-                    AND si.id > si2.id
+                DELETE FROM station_identifiers
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM station_identifiers si2
+                    WHERE station_identifiers.type = si2.type
+                    AND station_identifiers.identifier = si2.identifier
+                    AND station_identifiers.id > si2.id
+                )
             ');
         }
 

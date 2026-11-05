@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class UnifyColumnsFromTrainStations extends Migration
@@ -13,9 +14,13 @@ class UnifyColumnsFromTrainStations extends Migration
      */
     public function up()
     {
-        Schema::table('train_stations', function (Blueprint $table) {
-            $table->bigInteger('ibnr')->unsigned()->change();
-        });
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE train_stations ALTER COLUMN ibnr TYPE BIGINT USING ibnr::BIGINT');
+        } else {
+            Schema::table('train_stations', function (Blueprint $table) {
+                $table->bigInteger('ibnr')->unsigned()->change();
+            });
+        }
     }
 
     /**
@@ -25,8 +30,12 @@ class UnifyColumnsFromTrainStations extends Migration
      */
     public function down()
     {
-        Schema::table('train_stations', function (Blueprint $table) {
-            $table->string('ibnr', 255)->change();
-        });
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE train_stations ALTER COLUMN ibnr TYPE VARCHAR(255) USING ibnr::VARCHAR');
+        } else {
+            Schema::table('train_stations', function (Blueprint $table) {
+                $table->string('ibnr', 255)->change();
+            });
+        }
     }
 }
