@@ -13,7 +13,7 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 RUN apt update && \
     apt upgrade -y && \
-    apt install -y zlib1g-dev libpng-dev libsodium-dev wait-for-it default-pgsql-client && \
+    apt install -y zlib1g-dev libpng-dev libsodium-dev wait-for-it libpq-dev && \
     docker-php-ext-install gd exif pdo pgsql sodium && \
     a2enmod rewrite && \
     a2enmod http2 && \
