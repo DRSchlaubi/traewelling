@@ -4,10 +4,12 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { type AdminUserResource, Api } from '../../../types/Api.gen';
 import BackendLayout from '../../layouts/BackendLayout.vue';
+import ReportTable from '../Reports/ReportTable.vue';
 
 const api = new Api({ baseUrl: window.location.origin + '/api' });
 const route = useRoute();
 const userId = computed(() => Number(route.params.id));
+const reportQuery = computed(() => ({ subjectUserId: userId.value }));
 
 const user = ref<AdminUserResource | null>(null);
 const loading = ref(true);
@@ -357,6 +359,13 @@ watch(userId, fetchUser);
                         </div>
                     </div>
 
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <h2 class="card-title text-base">Reports</h2>
+                            <ReportTable :query="reportQuery" />
+                        </div>
+                    </div>
+
                     <!-- Recent statuses card -->
                     <div class="card bg-base-100 shadow">
                         <div class="card-body">
@@ -378,7 +387,7 @@ watch(userId, fetchUser);
                                         <tr v-for="status in user.recentStatuses" :key="status.id" class="hover">
                                             <td>
                                                 <a
-                                                    :href="`/admin/statuses/${status.id}`"
+                                                    :href="`/admin/statuses/${status.uuid}`"
                                                     class="link link-hover font-mono text-xs"
                                                 >
                                                     #{{ status.id }}

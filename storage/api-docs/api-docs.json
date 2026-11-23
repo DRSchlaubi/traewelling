@@ -746,9 +746,10 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "UUID of the status. The numeric ID is still accepted.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -797,9 +798,10 @@
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "UUID of the status. The numeric ID is still accepted.",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -3615,7 +3617,7 @@
                     "Notifications"
                 ],
                 "summary": "Get paginated notifications for authenticated user",
-                "description": "Returns paginated notifications of a authenticated",
+                "description": "Returns paginated notifications of a authenticated. We recommend to use `GET /v2/notifications` instead.",
                 "operationId": "listNotifications",
                 "responses": {
                     "200": {
@@ -3661,6 +3663,48 @@
                     {
                         "passport": [
                             "read-notifications"
+                        ]
+                    },
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/v1/notifications/{id}": {
+            "delete": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Delete notification",
+                "operationId": "deleteNotification",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of notification",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "00000000-0000-0000-0000-000000000000"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": [
+                            "write-notifications"
                         ]
                     },
                     {
@@ -4004,6 +4048,50 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "open",
+                                "waiting",
+                                "closed"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "subjectType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Event",
+                                "Status",
+                                "Trip",
+                                "User"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "subjectId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "subjectUserId",
+                        "in": "query",
+                        "description": "Reports on this user or on their statuses and trips",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -4210,6 +4298,11 @@
                                     },
                                     "description": {
                                         "type": "string",
+                                        "nullable": true
+                                    },
+                                    "applyToSameSubject": {
+                                        "description": "Also update the other open and waiting reports on the same subject",
+                                        "type": "boolean",
                                         "nullable": true
                                     }
                                 },
@@ -7436,11 +7529,11 @@
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "Status-ID",
+                        "description": "UUID of the status. The numeric ID is still accepted.",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "example": 1337
+                        "example": "00000000-0000-0000-0000-000000000000"
                     },
                     {
                         "name": "withIdentifiers",
@@ -9205,31 +9298,9 @@
                             "application/json": {
                                 "schema": {
                                     "required": [
-                                        "message",
                                         "data"
                                     ],
                                     "properties": {
-                                        "message": {
-                                            "description": "Deprecated: use data.conflicts instead",
-                                            "required": [
-                                                "status_id",
-                                                "lineName"
-                                            ],
-                                            "properties": {
-                                                "status_id": {
-                                                    "type": "integer",
-                                                    "nullable": true,
-                                                    "deprecated": true
-                                                },
-                                                "lineName": {
-                                                    "type": "string",
-                                                    "nullable": true,
-                                                    "deprecated": true
-                                                }
-                                            },
-                                            "type": "object",
-                                            "deprecated": true
-                                        },
                                         "data": {
                                             "required": [
                                                 "conflicts"
@@ -11408,6 +11479,139 @@
                     }
                 ]
             }
+        },
+        "/v2/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get cursor paginated notifications for authenticated user",
+                "operationId": "listNotificationsV2",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data",
+                                        "links",
+                                        "meta"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Notification"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/Links"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/CursorPaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": [
+                            "read-notifications"
+                        ]
+                    },
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/v2/operators": {
+            "get": {
+                "tags": [
+                    "Checkin"
+                ],
+                "summary": "Get a list of operators, optionally filtered by name.",
+                "operationId": "listOperatorsV2",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Filter operators by name (minimum 2 characters)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data",
+                                        "links",
+                                        "meta"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/OperatorResourceV2"
+                                            }
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/Links"
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/CursorPaginationMeta"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    },
+                    {
+                        "token": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -11441,7 +11645,8 @@
                     "features",
                     "languages",
                     "version",
-                    "gdprExportCooldown"
+                    "gdprExportCooldown",
+                    "legalNotice"
                 ],
                 "properties": {
                     "appName": {
@@ -11481,6 +11686,9 @@
                     "gdprExportCooldown": {
                         "description": "Cooldown time in days between gdpr exports",
                         "type": "integer"
+                    },
+                    "legalNotice": {
+                        "$ref": "#/components/schemas/LegalNotice"
                     }
                 },
                 "type": "object"
@@ -11501,6 +11709,44 @@
                         "description": "The name of the language (e.g., \"English\", \"French\").",
                         "type": "string",
                         "example": "English"
+                    }
+                },
+                "type": "object"
+            },
+            "LegalNotice": {
+                "description": "Contact details of the operator for the legal notice.",
+                "required": [
+                    "name",
+                    "address1",
+                    "address2",
+                    "email",
+                    "phone"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe",
+                        "nullable": true
+                    },
+                    "address1": {
+                        "type": "string",
+                        "example": "1 Example Street",
+                        "nullable": true
+                    },
+                    "address2": {
+                        "type": "string",
+                        "example": "12345 Example City",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "hello@example.com",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+49 123 456789",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -12740,6 +12986,10 @@
                     "timezone": {
                         "type": "string",
                         "example": "Europe/Berlin"
+                    },
+                    "language": {
+                        "type": "string",
+                        "example": "de"
                     }
                 },
                 "type": "object"
@@ -12823,6 +13073,7 @@
                 "title": "AdminStatusResource",
                 "required": [
                     "id",
+                    "uuid",
                     "body",
                     "visibility",
                     "business",
@@ -12842,6 +13093,11 @@
                     "id": {
                         "type": "integer",
                         "example": 12345
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "00000000-0000-0000-0000-000000000000"
                     },
                     "body": {
                         "type": "string",
@@ -13684,6 +13940,38 @@
                 },
                 "type": "object"
             },
+            "CursorPaginationMeta": {
+                "title": "CursorPaginationMeta",
+                "description": "Cursor pagination meta data",
+                "required": [
+                    "path",
+                    "per_page",
+                    "next_cursor",
+                    "prev_cursor"
+                ],
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "https://traewelling.de/api/v2/ENDPOINT"
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "next_cursor": {
+                        "type": "string",
+                        "example": "eyJjcmVhdGVkX2F0IjoiMjAyNi0xMS0wNyAxMjowMDowMCJ9",
+                        "nullable": true
+                    },
+                    "prev_cursor": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "DataSourceResource": {
                 "title": "DataSourceResource",
                 "required": [
@@ -14443,7 +14731,7 @@
                         "example": "operator"
                     },
                     "id": {
-                        "description": "Numeric legacy ID. Deprecated: will become a UUID after 2026-09-30.",
+                        "description": "Numeric legacy ID. Use `uuid` instead.",
                         "type": "integer",
                         "example": 1,
                         "deprecated": true
@@ -14616,6 +14904,8 @@
                     "status",
                     "subject_type",
                     "subject_id",
+                    "subject",
+                    "other_unresolved_reports",
                     "reason",
                     "description",
                     "reporter",
@@ -14644,6 +14934,70 @@
                     "subject_id": {
                         "type": "integer",
                         "example": 1
+                    },
+                    "subject": {
+                        "description": "Null if the subject no longer exists",
+                        "required": [
+                            "uuid",
+                            "user",
+                            "body",
+                            "name",
+                            "line_name",
+                            "origin",
+                            "destination",
+                            "manual_trip"
+                        ],
+                        "properties": {
+                            "uuid": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                            },
+                            "user": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/LightUserResource"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "nullable": true,
+                                        "enum": [
+                                            null
+                                        ]
+                                    }
+                                ]
+                            },
+                            "body": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "name": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "line_name": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "origin": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "destination": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "manual_trip": {
+                                "type": "boolean",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "other_unresolved_reports": {
+                        "description": "Other open or waiting reports on the same subject",
+                        "type": "integer"
                     },
                     "reason": {
                         "type": "string",
@@ -15109,6 +15463,7 @@
                 "title": "Status",
                 "required": [
                     "id",
+                    "uuid",
                     "body",
                     "business",
                     "bodyMentions",
@@ -15133,6 +15488,11 @@
                     "id": {
                         "type": "integer",
                         "example": 12345
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "00000000-0000-0000-0000-000000000000"
                     },
                     "body": {
                         "description": "User defined status text",
@@ -16188,7 +16548,7 @@
                     },
                     "link": {
                         "type": "string",
-                        "example": "https://traewelling.de/status/123456"
+                        "example": "https://traewelling.de/status/00000000-0000-0000-0000-000000000000"
                     },
                     "data": {
                         "type": "array",
@@ -16398,7 +16758,7 @@
                     },
                     "mastodonUrl": {
                         "description": "URL to the Mastodon profile of the user",
-                        "example": "https://chaos.social/@traewelling"
+                        "example": "https://social.traewelling.org/@traewelling"
                     },
                     "privateProfile": {
                         "description": "is this profile set to private?",
@@ -16576,6 +16936,36 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/WebhookResponseCodeStatsDto"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "OperatorResourceV2": {
+                "required": [
+                    "type",
+                    "id",
+                    "name",
+                    "identifiers"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "operator"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "00000000-0000-0000-0000-000000000000"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "DB Regio AG Nord"
+                    },
+                    "identifiers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OperatorIdentifierResource"
                         }
                     }
                 },

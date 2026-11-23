@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Socialite;
 use SocialiteProviders\Zitadel\Provider as ZitadelProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
@@ -41,13 +43,23 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('guest')->except('logout');
     }
 
-    public function login(Request $request): Response {
-        $validator = Validator::make($request->all(), [
-            'login'    => ['required', 'max:255'],
+    public function showLoginForm(): View
+    {
+        return view('vue.spa', [
+            'title' => __('menu.login'),
+            'robots' => 'noindex',
+        ]);
+    }
+
+    public function login(Request $request): Response
+    {
+        $validated = $request->validate([
+            'login' => ['required', 'max:255'],
             'password' => ['required', 'min:8'],
             'remember' => ['nullable'],
         ]);
@@ -66,12 +78,19 @@ class LoginController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
-        if (BackendLoginController::login($validated['login'], $validated['password'], isset($validated['remember']))) {
-            return redirect()->intended($this->redirectPath());
+        if (BackendLoginController::login($validated['login'], $validated['password'], $request->boolean('remember'))) {
+            $redirect = redirect()->intended($this->redirectPath());
+
+            return $request->expectsJson()
+                ? response()->json(['redirect' => $redirect->getTargetUrl()])
+                : $redirect;
         }
 
         $this->incrementLoginAttempts($request);
 
+        throw ValidationException::withMessages([
+            'login_error' => __('error.login'),
+        ]);
         return redirect()->route('login')
                          ->withInput()
                          ->withErrors([

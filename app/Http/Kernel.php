@@ -12,6 +12,7 @@ use App\Http\Middleware\PrivacyPolicyInterceptionMiddleware;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\RequirePersonalToken;
 use App\Http\Middleware\SemiScope;
+use App\Http\Middleware\Sunset;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
@@ -24,6 +25,7 @@ use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Http\Middleware\SetCacheHeaders;
+use Illuminate\Http\Middleware\TrustHosts;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ValidateSignature;
@@ -47,6 +49,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
+        TrustHosts::class,
         CheckForMaintenanceMode::class,
         ValidatePostSize::class,
         TrimStrings::class,
@@ -104,6 +107,7 @@ class Kernel extends HttpKernel
         'scopes' => CheckToken::class,
         'scope' => CheckTokenForAnyScope::class,
         'semiscope' => SemiScope::class,
+        'sunset' => Sunset::class,
         'personal-token' => RequirePersonalToken::class,
         'role' => RoleMiddleware::class,
         'permission' => PermissionMiddleware::class,

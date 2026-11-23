@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\StatusVisibility;
 use App\Models\Event;
 use App\Models\Status;
-use App\Services\LicenseService;
-use Illuminate\Contracts\Support\Renderable;
+use App\Services\ProfilePictureService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -14,14 +15,7 @@ use Illuminate\View\View;
  */
 class FrontendStatusController extends Controller
 {
-    private LicenseService $licenseService;
-
-    public function __construct(LicenseService $licenseService)
-    {
-        $this->licenseService = $licenseService;
-    }
-
-    public function statusesByEvent(string $slug): Renderable
+    public function statusesByEvent(string $slug): View
     {
         $event = Event::where('slug', $slug)->firstOrFail();
         $response = StatusController::getStatusesByEvent($event);
@@ -30,19 +24,33 @@ class FrontendStatusController extends Controller
             abort(404);
         }
 
-        return view('eventsMap', [
-            'event' => $response['event'],
+        return view('vue.spa', [
+            'title' => $event->name,
+            'canonical' => route('event', ['slug' => $event->slug]),
         ]);
     }
 
-    public function getStatus(int $statusId): View
+    public function redirectToStatus(int $statusId): RedirectResponse
     {
-        $status = Status::find($statusId);
-        $allowedToView = Gate::allows('view', $status);
+        $status = Status::findOrFail($statusId);
 
-        return view('vue.single-status', [
-            'statusId' => $statusId,
-            'username' => $allowedToView ? $status?->user->username : null,
+        return redirect()->route('status', ['uuid' => $status->uuid], 301);
+    }
+
+    public function getStatus(string $uuid): View
+    {
+        $status = Status::where('uuid', $uuid)->firstOrFail();
+        $isVisible = Gate::allows('view', $status);
+        $isIndexable = $status->visibility === StatusVisibility::PUBLIC
+            && !$status->user->private_profile
+            && !$status->user->prevent_index;
+
+        return view('vue.spa', [
+            'title' => $isVisible ? __('status.ogp-title', ['name' => $status->user->username]) : null,
+            'canonical' => route('status', ['uuid' => $status->uuid]),
+            'robots' => $isIndexable ? null : 'noindex',
+            'description' => $isVisible ? $status->description : null,
+            'image' => $isVisible ? resolve(ProfilePictureService::class)->getUrl($status->user) : null,
         ]);
     }
 }

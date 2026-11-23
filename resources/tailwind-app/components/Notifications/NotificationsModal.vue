@@ -47,7 +47,7 @@ defineExpose({ open });
                 <!-- Empty state -->
                 <div
                     v-else-if="!store.loading && store.notifications.length === 0"
-                    class="flex flex-col items-center justify-center py-12 text-base-content/50"
+                    class="flex flex-col items-center justify-center py-12 text-base-content/70"
                 >
                     <BellOff class="size-8 mb-2" />
                     <p class="text-sm">{{ trans('notifications.empty') }}</p>
@@ -60,8 +60,19 @@ defineExpose({ open });
                         :key="notification.id"
                         :notification="notification"
                         @toggle-read="store.toggleRead(notification, index)"
+                        @delete="store.deleteNotification(notification)"
                     />
                 </ul>
+
+                <div v-if="store.notifications.length > 0" class="text-center py-3">
+                    <router-link
+                        :to="{ name: 'notifications' }"
+                        class="btn btn-ghost btn-sm"
+                        @click="dialogRef?.close()"
+                    >
+                        {{ trans('menu.show-all') }}
+                    </router-link>
+                </div>
             </div>
         </div>
 

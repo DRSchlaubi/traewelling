@@ -170,7 +170,7 @@ watch(customKeyInput, () => {
             v-for="tag in localTags"
             :key="tag.key"
             :data-tip="getTitle(tag.key)"
-            class="badge badge-outline gap-1 text-xs tooltip"
+            class="badge badge-outline gap-1 text-xs tooltip h-auto min-h-(--size) py-0.5 wrap-anywhere"
             :class="editable ? 'cursor-pointer hover:badge-primary transition-colors' : ''"
             @click="editable && openEditModal(tag)"
         >
@@ -252,7 +252,7 @@ watch(customKeyInput, () => {
                                     <component :is="VISIBILITY_ICONS[v]" class="w-4 h-4 shrink-0" />
                                     <span>
                                         {{ trans('status.visibility.' + v) }}
-                                        <span class="block text-xs text-base-content/50">{{
+                                        <span class="block text-xs text-base-content/70">{{
                                             trans('status.visibility.' + v + '.detail')
                                         }}</span>
                                     </span>
@@ -326,7 +326,7 @@ watch(customKeyInput, () => {
                                     <component :is="VISIBILITY_ICONS[v]" class="w-4 h-4 shrink-0" />
                                     <span>
                                         {{ trans('status.visibility.' + v) }}
-                                        <span class="block text-xs text-base-content/50">{{
+                                        <span class="block text-xs text-base-content/70">{{
                                             trans('status.visibility.' + v + '.detail')
                                         }}</span>
                                     </span>

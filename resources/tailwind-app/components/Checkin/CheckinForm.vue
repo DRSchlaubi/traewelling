@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ExternalLink, TriangleAlert } from '@lucide/vue';
 import { trans } from 'laravel-vue-i18n';
 import { DateTime } from 'luxon';
 import { Notyf } from 'notyf';
@@ -102,7 +103,7 @@ async function checkIn(): Promise<void> {
         activeCheckin.reset();
         checkinSuccess.setResponse(json.data);
         await tagEditor.value?.postTags(json.data.status.id);
-        router.push({ name: 'single-status', params: { id: json.data.status.id } });
+        router.push({ name: 'single-status', params: { uuid: json.data.status.uuid } });
     } catch (e) {
         const status = typeof e === 'object' && e !== null && 'status' in e ? (e as { status: number }).status : 0;
         if (status === 409) {
@@ -127,13 +128,13 @@ async function checkIn(): Promise<void> {
         <!-- Collision warning -->
         <div v-if="collision" class="alert alert-warning flex flex-col gap-2 text-sm" role="alert">
             <div class="flex items-start gap-2">
-                <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0" />
+                <TriangleAlert class="size-4 mt-0.5 shrink-0" />
                 <div class="flex flex-col gap-1">
                     <p class="font-semibold">{{ trans('checkin.conflict') }}</p>
                     <ul v-if="collisionCheckins.length" class="flex flex-col gap-1">
                         <li v-for="conflict in collisionCheckins" :key="conflict.id">
                             <router-link
-                                :to="{ name: 'single-status', params: { id: conflict.id } }"
+                                :to="{ name: 'single-status', params: { uuid: conflict.uuid } }"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 class="link link-hover flex flex-wrap items-baseline gap-x-1"
@@ -151,7 +152,7 @@ async function checkIn(): Promise<void> {
                                         DateTime.fromISO(conflict.checkin.destination.arrivalPlanned).toFormat('HH:mm')
                                     }}
                                 </span>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50" />
+                                <ExternalLink class="size-3 opacity-50" />
                             </router-link>
                         </li>
                     </ul>
@@ -172,7 +173,7 @@ async function checkIn(): Promise<void> {
             <div class="label justify-end">
                 <span
                     class="label-text-alt"
-                    :class="remaining < 20 ? (remaining < 10 ? 'text-error' : 'text-warning') : 'text-base-content/40'"
+                    :class="remaining < 20 ? (remaining < 10 ? 'text-error' : 'text-warning') : 'text-base-content/70'"
                 >
                     {{ remaining }}
                 </span>

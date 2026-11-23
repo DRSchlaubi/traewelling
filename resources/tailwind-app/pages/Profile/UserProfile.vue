@@ -9,6 +9,7 @@ import profileBg from '../../../images/covers/profile-background.png';
 import { Api, StatusResource, StopoverResource, UserResource, ViewUserForbiddenReason } from '../../../types/Api.gen';
 import { getDepartureForStatus } from '../../../vue/helpers/DateTimeHelper';
 import { useUserStore } from '../../../vue/stores/user';
+import ErrorPage from '../../components/ErrorPage.vue';
 import StatusCard from '../../components/Status/StatusCard.vue';
 import AppLayout from '../../layouts/AppLayout.vue';
 import { PageTitleService } from '../../services/PageTitleService';
@@ -29,6 +30,7 @@ const userInvisibleReason = ref<ViewUserForbiddenReason | null>(null);
 const statuses = ref<StatusResource[]>([]);
 const stopovers = ref<Record<string, StopoverResource[]>>({});
 const loadingUser = ref(true);
+const notFound = ref(false);
 const loadingStatuses = ref(true);
 const showMore = ref(false);
 const currentPage = ref(1);
@@ -39,13 +41,20 @@ const isOwnProfile = computed(() => authUser.authenticated && authUser.getId ===
 
 async function fetchUser() {
     loadingUser.value = true;
+    notFound.value = false;
     try {
         const res = await api.user.showUser(username.value);
         userData.value = res.data.data;
-    } catch (err: unknown) {
+    } catch (e: unknown) {
+        const err = e as {
+            status?: number;
+            error?: { meta?: { reason?: ViewUserForbiddenReason; user?: UserResource } };
+        };
         if (err?.status === 403) {
             userInvisibleReason.value = err.error?.meta?.reason ?? null;
             userData.value = err.error?.meta?.user ?? null;
+        } else if (err?.status === 404) {
+            notFound.value = true;
         } else {
             notyf?.error(trans('generic.error'));
         }
@@ -80,8 +89,9 @@ async function fetchStatuses(append = false) {
         const next = res.data?.links?.next ?? null;
         showMore.value = next !== null;
         await fetchStopovers();
-    } catch (err: unknown) {
-        if (err?.status !== 403) {
+    } catch (e: unknown) {
+        const status = (e as { status?: number })?.status;
+        if (status !== 403 && status !== 404) {
             notyf?.error(trans('generic.error'));
         }
     } finally {
@@ -127,9 +137,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <AppLayout :legacy="true" :fullscreen="true">
+    <ErrorPage v-if="notFound" :code="404" standalone />
+    <AppLayout v-else :legacy="true" :fullscreen="true">
         <div
-            class="w-full bg-primary text-primary-content bg-center bg-cover px-4 sm:px-6 lg:px-8 py-6"
+            class="w-full bg-primary-surface text-primary-content bg-center bg-cover px-4 sm:px-6 lg:px-8 py-6"
             :style="{ backgroundImage: `url(${profileBg})` }"
         >
             <div class="max-w-7xl mx-auto">
@@ -183,7 +194,7 @@ onMounted(() => {
 
                         <!-- Empty state -->
                         <div v-else-if="!loadingStatuses && !statuses.length" class="card bg-base-100 shadow-sm">
-                            <div class="card-body text-center py-10 text-base-content/50">
+                            <div class="card-body text-center py-10 text-base-content/70">
                                 <template v-if="(userData.totalDistance ?? 0) > 0">
                                     {{ trans('profile.no-visible-statuses', { username: userData.displayName }) }}
                                 </template>
@@ -198,7 +209,7 @@ onMounted(() => {
                             <template v-for="(s, i) in statuses" :key="s.id">
                                 <p
                                     v-if="isNewDay(i)"
-                                    class="text-sm font-medium text-base-content/50 mt-4 mb-2 first:mt-0 flex items-center gap-2"
+                                    class="text-sm font-medium text-base-content/70 mt-4 mb-2 first:mt-0 flex items-center gap-2"
                                 >
                                     {{ dayLabel(s) }}
                                     <a
@@ -237,7 +248,7 @@ onMounted(() => {
                             <!-- End of feed -->
                             <div
                                 v-if="!loadingStatuses && !showMore && statuses.length"
-                                class="text-center py-8 text-base-content/30 text-sm"
+                                class="text-center py-8 text-base-content/70 text-sm"
                             >
                                 <p>Final stop. All change, please!</p>
                             </div>

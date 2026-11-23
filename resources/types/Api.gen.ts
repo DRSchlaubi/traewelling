@@ -309,6 +309,8 @@ export interface ConfigurationInformation {
   languages: Language[];
   /** Cooldown time in days between gdpr exports */
   gdprExportCooldown: number;
+  /** Contact details of the operator for the legal notice. */
+  legalNotice: LegalNotice;
 }
 
 /** Represents a language with its code and name. */
@@ -323,6 +325,20 @@ export interface Language {
    * @example "English"
    */
   name: string;
+}
+
+/** Contact details of the operator for the legal notice. */
+export interface LegalNotice {
+  /** @example "John Doe" */
+  name: string | null;
+  /** @example "1 Example Street" */
+  address1: string | null;
+  /** @example "12345 Example City" */
+  address2: string | null;
+  /** @example "hello@example.com" */
+  email: string | null;
+  /** @example "+49 123 456789" */
+  phone: string | null;
 }
 
 /**
@@ -933,6 +949,8 @@ export interface UpdateProfileInformationRequest {
   profileLinks?: ProfileLinkResource[] | null;
   /** @example "Europe/Berlin" */
   timezone?: string;
+  /** @example "de" */
+  language?: string;
 }
 
 /** ActivityLog */
@@ -959,6 +977,11 @@ export interface ActivityLogResource {
 export interface AdminStatusResource {
   /** @example 12345 */
   id: number;
+  /**
+   * @format uuid
+   * @example "00000000-0000-0000-0000-000000000000"
+   */
+  uuid: string;
   body: string | null;
   /** @example 0 */
   visibility: number;
@@ -1282,6 +1305,24 @@ export interface ContributionHistory {
    * @example "2026-02-15T12:00:00Z"
    */
   createdAt: string;
+}
+
+/**
+ * CursorPaginationMeta
+ * Cursor pagination meta data
+ */
+export interface CursorPaginationMeta {
+  /**
+   * @format url
+   * @example "https://traewelling.de/api/v2/ENDPOINT"
+   */
+  path: string;
+  /** @example 15 */
+  per_page: number;
+  /** @example "eyJjcmVhdGVkX2F0IjoiMjAyNi0xMS0wNyAxMjowMDowMCJ9" */
+  next_cursor: string | null;
+  /** @example null */
+  prev_cursor: string | null;
 }
 
 /** DataSourceResource */
@@ -1665,7 +1706,7 @@ export interface OperatorResource {
   /** @example "operator" */
   type: string;
   /**
-   * Numeric legacy ID. Deprecated: will become a UUID after 2026-09-30.
+   * Numeric legacy ID. Use `uuid` instead.
    * @deprecated
    * @example 1
    */
@@ -1792,6 +1833,20 @@ export interface ReportResource {
   subject_type: string;
   /** @example 1 */
   subject_id: number;
+  /** Null if the subject no longer exists */
+  subject: {
+    /** @format uuid */
+    uuid: string | null;
+    user: LightUserResource | null;
+    body: string | null;
+    name: string | null;
+    line_name: string | null;
+    origin: string | null;
+    destination: string | null;
+    manual_trip: boolean | null;
+  } | null;
+  /** Other open or waiting reports on the same subject */
+  other_unresolved_reports: number;
   reason: "inappropriate" | "implausible" | "spam" | "illegal" | "other" | null;
   description: string | null;
   reporter: LightUserResource | null;
@@ -2012,6 +2067,11 @@ export interface StatisticsGlobalData {
 export interface StatusResource {
   /** @example 12345 */
   id: number;
+  /**
+   * @format uuid
+   * @example "00000000-0000-0000-0000-000000000000"
+   */
+  uuid: string;
   /**
    * User defined status text
    * @example "Hello world!"
@@ -2560,7 +2620,7 @@ export interface Notification {
   noticeFormatted: string;
   /** @example "@bob is on S 81 from Karlsruhe Hbf to Freudenstadt Hbf." */
   notice: string;
-  /** @example "https://traewelling.de/status/123456" */
+  /** @example "https://traewelling.de/status/00000000-0000-0000-0000-000000000000" */
   link: string;
   data: any[];
   /** @example "2023-01-01T00:00:00+00:00" */
@@ -2674,7 +2734,7 @@ export interface UserResource {
   points: number;
   /**
    * URL to the Mastodon profile of the user
-   * @example "https://chaos.social/@traewelling"
+   * @example "https://social.traewelling.org/@traewelling"
    */
   mastodonUrl: any;
   /**
@@ -2802,6 +2862,19 @@ export interface WebhookStatsResource {
   byDay: WebhookDayStatsDto[];
   byEvent: WebhookEventStatsDto[];
   byResponseCode: WebhookResponseCodeStatsDto[];
+}
+
+export interface OperatorResourceV2 {
+  /** @example "operator" */
+  type: string;
+  /**
+   * @format uuid
+   * @example "00000000-0000-0000-0000-000000000000"
+   */
+  id: string;
+  /** @example "DB Regio AG Nord" */
+  name: string;
+  identifiers: OperatorIdentifierResource[];
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -3437,7 +3510,7 @@ export class Api<
      * @request GET:/v1/admin/statuses/{id}
      * @secure
      */
-    getAdminStatus: (id: number, params: RequestParams = {}) =>
+    getAdminStatus: (id: string, params: RequestParams = {}) =>
       this.request<
         {
           data: AdminStatusResource;
@@ -3461,7 +3534,7 @@ export class Api<
      * @secure
      */
     updateAdminStatus: (
-      id: number,
+      id: string,
       data: {
         /** Origin stopover ID (train_stopovers.id) of this trip */
         origin: number;
@@ -5220,7 +5293,7 @@ export class Api<
      * @secure
      */
     getSingleStatus: (
-      id?: number,
+      id?: string,
       query?: {
         /**
          * Include station identifiers in origin and destination stopovers
@@ -5448,7 +5521,7 @@ export class Api<
       }),
 
     /**
-     * @description Returns paginated notifications of a authenticated
+     * @description Returns paginated notifications of a authenticated. We recommend to use `GET /v2/notifications` instead.
      *
      * @tags Notifications
      * @name ListNotifications
@@ -5471,6 +5544,23 @@ export class Api<
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Notifications
+     * @name DeleteNotification
+     * @summary Delete notification
+     * @request DELETE:/v1/notifications/{id}
+     * @secure
+     */
+    deleteNotification: (id: string, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/v1/notifications/${id}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -5545,6 +5635,39 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags Notifications
+     * @name ListNotificationsV2
+     * @summary Get cursor paginated notifications for authenticated user
+     * @request GET:/v2/notifications
+     * @secure
+     */
+    listNotificationsV2: (
+      query?: {
+        cursor?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          data: Notification[];
+          /** Pagination links */
+          links: Links;
+          /** Cursor pagination meta data */
+          meta: CursorPaginationMeta;
+        },
+        void
+      >({
+        path: `/v2/notifications`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   operators = {
     /**
@@ -5591,6 +5714,41 @@ export class Api<
       this.request<void, void>({
         path: `/v1/operators/${oldOperatorId}/merge/${newOperatorId}`,
         method: "PUT",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Checkin
+     * @name ListOperatorsV2
+     * @summary Get a list of operators, optionally filtered by name.
+     * @request GET:/v2/operators
+     * @secure
+     */
+    listOperatorsV2: (
+      query?: {
+        /** Filter operators by name (minimum 2 characters) */
+        query?: string;
+        cursor?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          data: OperatorResourceV2[];
+          /** Pagination links */
+          links: Links;
+          /** Cursor pagination meta data */
+          meta: CursorPaginationMeta;
+        },
+        void
+      >({
+        path: `/v2/operators`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
         ...params,
       }),
   };
@@ -5646,6 +5804,11 @@ export class Api<
     listReports: (
       query?: {
         cursor?: string;
+        status?: "open" | "waiting" | "closed";
+        subjectType?: "Event" | "Status" | "Trip" | "User";
+        subjectId?: number;
+        /** Reports on this user or on their statuses and trips */
+        subjectUserId?: number;
       },
       params: RequestParams = {},
     ) =>
@@ -5731,6 +5894,8 @@ export class Api<
       data: {
         status: "open" | "waiting" | "closed";
         description?: string | null;
+        /** Also update the other open and waiting reports on the same subject */
+        applyToSameSubject?: boolean | null;
       },
       params: RequestParams = {},
     ) =>
@@ -7797,16 +7962,6 @@ export class Api<
             };
           }
         | {
-            /**
-             * Deprecated: use data.conflicts instead
-             * @deprecated
-             */
-            message: {
-              /** @deprecated */
-              status_id: number | null;
-              /** @deprecated */
-              lineName: string | null;
-            };
             data: {
               conflicts: StatusResource[];
             };

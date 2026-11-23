@@ -23,6 +23,7 @@ type DepartureMeta = {
     station?: Station;
     times?: { prev: string; now: string; next: string };
     removedLicenses?: { licenseName?: string }[];
+    removedCount?: number;
     availableTravelTypes?: TravelType[];
 };
 
@@ -35,7 +36,7 @@ const travelType = ref('');
 const stationId = computed(() => route.query.stationId as string | undefined);
 const stationName = computed(() => (meta.value.station?.name ?? route.query.stationName) as string | undefined);
 
-const removedLicensesCount = computed(() => meta.value.removedLicenses?.length ?? 0);
+const hiddenDeparturesCount = computed(() => meta.value.removedCount ?? 0);
 
 const isPastLimit = computed(() => fetchTime.value < DateTime.now().setZone('UTC').minus({ hours: 24 }));
 
@@ -272,7 +273,11 @@ watch(router.currentRoute, (to) => {
                                 :min="minDateTimeLocal"
                                 @input="onFetchTimeInput"
                             />
-                            <button v-if="isTimeOffNow" class="btn btn-ghost btn-xs text-primary" @click="resetToNow">
+                            <button
+                                v-if="isTimeOffNow"
+                                class="btn btn-ghost btn-xs text-primary-link"
+                                @click="resetToNow"
+                            >
                                 <RotateCcw class="w-3 h-3" />
                                 {{ trans('time.now') }}
                             </button>
@@ -293,13 +298,13 @@ watch(router.currentRoute, (to) => {
 
             <!-- Hidden licenses info -->
             <div
-                v-if="removedLicensesCount > 0"
+                v-if="hiddenDeparturesCount > 0"
                 class="collapse collapse-arrow bg-base-100 mb-2 md:mb-4 border border-info"
             >
                 <input type="checkbox" />
                 <div class="collapse-title text-sm flex items-center gap-2 text-info font-medium">
                     <TriangleAlert class="w-4 h-4 flex-shrink-0" />
-                    {{ transChoice('stationboard.hidden-departures', removedLicensesCount) }}
+                    {{ transChoice('stationboard.hidden-departures', hiddenDeparturesCount) }}
                 </div>
                 <div class="collapse-content text-sm">
                     <p class="mb-2">{{ trans('stationboard.hidden-departures.detail') }}</p>
@@ -362,7 +367,7 @@ watch(router.currentRoute, (to) => {
                             {{ trans('stationboard.no-departures-for-filter', { type: selectedTravelTypeLabel }) }}
                         </p>
                         <div v-if="availableTravelTypeOptions.length" class="flex flex-col items-center gap-2">
-                            <span class="text-xs text-base-content/50">
+                            <span class="text-xs text-base-content/70">
                                 {{ trans('stationboard.available-travel-types') }}
                             </span>
                             <div class="flex flex-wrap justify-center gap-2">
@@ -376,7 +381,7 @@ watch(router.currentRoute, (to) => {
                                 </button>
                             </div>
                         </div>
-                        <button class="btn btn-ghost btn-sm text-primary" @click="selectTravelType('')">
+                        <button class="btn btn-ghost btn-sm text-primary-link" @click="selectTravelType('')">
                             <RotateCcw class="w-4 h-4" />
                             {{ trans('filter.reset') }}
                         </button>
@@ -394,7 +399,7 @@ watch(router.currentRoute, (to) => {
                         :class="index > 0 ? 'mt-4' : ''"
                     >
                         <div class="flex-1 h-px bg-base-300" />
-                        <span class="text-xs font-medium text-base-content/50 shrink-0">
+                        <span class="text-xs font-medium text-base-content/70 shrink-0">
                             {{ getDateLabel(item) }}
                         </span>
                         <div class="flex-1 h-px bg-base-300" />
@@ -417,7 +422,7 @@ watch(router.currentRoute, (to) => {
 
             <!-- Manual trip creation -->
             <div v-if="!loading && userStore.user" class="flex flex-col items-center gap-2 mt-4">
-                <p class="text-sm text-base-content/50">{{ trans('missing-journey') }}</p>
+                <p class="text-sm text-base-content/70">{{ trans('missing-journey') }}</p>
                 <router-link :to="{ name: 'trip-create' }" class="btn btn-outline btn-sm gap-2">
                     <Plus class="w-4 h-4" />
                     {{ trans('create-journey') }}
