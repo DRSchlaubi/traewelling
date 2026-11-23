@@ -21,7 +21,7 @@ class ExportCheckinResource extends JsonResource
         /** @var Checkin $this */
         $manualJourneyNumber = $this->relationLoaded('statusTags')
             ? $this->statusTags->firstWhere('key', StatusTagKey::JOURNEY_NUMBER->value)
-            : StatusTag::whereStatusId($this->status_id)->whereRaw('`key` = ?', [StatusTagKey::JOURNEY_NUMBER->value])->first();
+            : StatusTag::whereStatusId($this->status_id)->where('key', StatusTagKey::JOURNEY_NUMBER->value)->first();
 
         return [
             'trip_id' => (int) $this->trip->id,
